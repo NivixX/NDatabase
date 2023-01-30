@@ -13,19 +13,16 @@ import java.util.function.Consumer;
 
 public class AsyncResultImpl<T> implements Promise.AsyncResult<T> {
 
-    private final CompletableFuture<T> valueResultFuture;
-
-    private AtomicReference<DatabaseCallback<T>> databaseCallback;
-
-    private SyncExecutor syncExecutor;
-
-    private DBLogger dbLogger;
+    private final CompletableFuture<T> databaseResultFuture;
+    private final AtomicReference<DatabaseCallback<T>> databaseCallback;
+    private final SyncExecutor syncExecutor;
+    private final DBLogger dbLogger;
 
     // From where this promise has been called
     private StackTraceElement stackTraceElementCaller;
 
     public AsyncResultImpl(CompletableFuture<T> valueResultFuture, SyncExecutor syncExecutor, DBLogger dbLogger) {
-        this.valueResultFuture = valueResultFuture;
+        this.databaseResultFuture = valueResultFuture;
         this.databaseCallback = new AtomicReference<>();
         this.syncExecutor = syncExecutor;
         this.dbLogger = dbLogger;
@@ -33,7 +30,7 @@ public class AsyncResultImpl<T> implements Promise.AsyncResult<T> {
 
     @Override
     public CompletableFuture<T> getResultFuture() {
-        return valueResultFuture;
+        return databaseResultFuture;
     }
 
     @Override
@@ -49,7 +46,7 @@ public class AsyncResultImpl<T> implements Promise.AsyncResult<T> {
             return;
         }
         this.databaseCallback.set(bukkitCallback);
-        handlePromise();
+        handleDatabasePromise();
     }
 
     @Override
@@ -67,40 +64,39 @@ public class AsyncResultImpl<T> implements Promise.AsyncResult<T> {
         setCallbackAndHandlePromise(new DatabaseCallback<>(true, valueConsumer));
     }
 
-    public void handlePromise() {
+    public void handleDatabasePromise() {
         Executors.newCachedThreadPool().execute(() -> {
-            T value;
+            T entityResult;
             DatabaseCallback<T> bukkitCallback = databaseCallback.get();
+
             try {
-                value = valueResultFuture.get();
-                valueResultFuture.handle((t, throwable) -> {
-                   throwable.printStackTrace();
-                    return null;
-                });
+                entityResult = databaseResultFuture.get();
                 if(bukkitCallback.isAsync()) {
-                    bukkitCallback.getCallback().accept(value, null);
+                    bukkitCallback.getCallback().accept(entityResult, null);
                 }
                 else { // SYNC
-                    syncExecutor.runSync(() -> bukkitCallback.getCallback().accept(value, null));
+                    syncExecutor.runSync(() -> bukkitCallback.getCallback().accept(entityResult, null));
                 }
-
             } catch (Throwable e) {
-                if(!bukkitCallback.isProvidedExceptionHandler()) {
-                    dbLogger.logWarn(
-                            String.format("Async database result promise ended with an" +
-                                    " exception and you didn't handled the exception, error message: '%s'." +
-                                    "If you want to handle the exception, you can use the " +
-                                    "then or thenAsync((entity, throwable) -> ) method.", e.getMessage()));
-                    return;
-                }
-                if(bukkitCallback.isAsync()) {
-                    bukkitCallback.getCallback().accept(null, e);
-                }
-                else { // SYNC
-                    syncExecutor.runSync(() -> bukkitCallback.getCallback().accept(null, e));
-                }
+                handleDatabaseException(bukkitCallback, e);
             }
-
         });
+    }
+
+    private void handleDatabaseException(DatabaseCallback<T> bukkitCallback, Throwable e) {
+        if(!bukkitCallback.isProvidedExceptionHandler()) {
+            dbLogger.logWarn(
+                    String.format("Async database result promise ended with an" +
+                            " exception and you didn't handled the exception, error message: '%s'." +
+                            "If you want to handle the exception, you can use the " +
+                            "then or thenAsync((entity, throwable) -> ) method.", e.getMessage()));
+            return;
+        }
+        if(bukkitCallback.isAsync()) {
+            bukkitCallback.getCallback().accept(null, e);
+        }
+        else { // SYNC
+            syncExecutor.runSync(() -> bukkitCallback.getCallback().accept(null, e));
+        }
     }
 }

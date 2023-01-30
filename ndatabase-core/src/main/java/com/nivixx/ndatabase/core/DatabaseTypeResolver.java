@@ -5,7 +5,7 @@ import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.dao.InMemoryDao;
+import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlConnectionPool;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlDao;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;

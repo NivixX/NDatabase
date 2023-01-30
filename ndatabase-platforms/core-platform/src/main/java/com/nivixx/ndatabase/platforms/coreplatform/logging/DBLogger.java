@@ -13,22 +13,22 @@ public interface DBLogger {
     Consumer<String> consumeWarnMessage();
 
     default void logInsert(Object value) {
-        consumeInfoMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("inserted entity %s", value));
     }
     default void logUpsert(Object value) {
-        consumeDebugMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("upserted entity %s", value));
     }
     default void logUpdate(Object value) {
-        consumeDebugMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("updated entity %s", value));
     }
     default void logDelete(Object key) {
-        consumeDebugMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("deleted entity with key %s", key));
     }
     default void logDeleteAll() {
-        consumeInfoMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("deleted all%s")); // TODO entity type
     }
     default void logGet(Object value) {
-        consumeDebugMessage().accept("BLABLABLA");
+        consumeInfoMessage().accept(String.format("get entity %s", value));
     }
     default void logError(Throwable throwable, String message) {
         consumeErrorMessage().accept(throwable, message);

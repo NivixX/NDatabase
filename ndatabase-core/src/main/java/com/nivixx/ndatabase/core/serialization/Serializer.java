@@ -34,7 +34,7 @@ public class Serializer {
         }
     }
 
-    public static <T extends NEntity<?>> T deserialize(byte[] bytes, Class<T> classz) {// throws IOException {
+    public static <T extends NEntity<?>> T deserialize(byte[] bytes, Class<T> classz) {
         if(bytes == null) { return null; }
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

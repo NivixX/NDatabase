@@ -1,9 +1,10 @@
-package com.nivixx.ndatabase.core.dao;
+package com.nivixx.ndatabase.core.dao.inmemory;
 
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.serialization.Serializer;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 

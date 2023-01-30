@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RepositoryManager<K,V extends NEntity<K>> {
 
-    private Map<Class<V>, Repository<K,V>> repositoryCache;
+    private final Map<Class<V>, Repository<K,V>> repositoryCache;
 
-    private DatabaseTypeResolver databaseTypeResolver;
+    private final DatabaseTypeResolver databaseTypeResolver;
 
     @Inject
     public RepositoryManager(DatabaseTypeResolver databaseTypeResolver) {
@@ -26,20 +26,14 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         this.databaseTypeResolver = databaseTypeResolver;
     }
 
-    public Repository<K,V> getOrCreateDao(Class<V> entityType) throws NDatabaseException {
+    public Repository<K,V> getOrCreateRepository(Class<V> entityType) throws NDatabaseException {
         if(repositoryCache.containsKey(entityType)) {
             return repositoryCache.get(entityType);
         }
 
-        // Create an instance of this type
+        // Create an instance of this type and resolve the key type
         V nEntity = createEntityInstance(entityType);
-        V cast = entityType.cast(nEntity);
-
-        ParameterizedTypeImpl genericSuperclass = (ParameterizedTypeImpl) cast.getClass().getGenericSuperclass();
-        Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
-        Class<K> keyType = (Class<K>) actualTypeArgument;
-        //((ParameterizedTypeImpl) ((TestEntity) nEntity).getClass().getGenericSuperclass()).actualTypeArguments
-        K key = nEntity.getId();
+        Class<K> keyType = resolveKeyFromEntity(nEntity);
 
         // Find configured database type (MYSQL, IN_MEMORY, ...)
         Dao<K,V> dao = databaseTypeResolver.getDaoForConfiguredDatabase(nEntity, keyType);
@@ -52,7 +46,6 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         SyncExecutor syncExecutor = Injector.resolveInstance(SyncExecutor.class);
         Repository<K,V> repository = new RepositoryImpl<>(dao, entityType, syncExecutor, dbLogger);
         repositoryCache.put(entityType, repository);
-
 
         return repository;
     }
@@ -68,5 +61,11 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public Class<K> resolveKeyFromEntity(V nEntity) {
+        ParameterizedTypeImpl genericSuperclass = (ParameterizedTypeImpl) nEntity.getClass().getGenericSuperclass();
+        Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
+        return (Class<K>) actualTypeArgument;
+    }
 
 }

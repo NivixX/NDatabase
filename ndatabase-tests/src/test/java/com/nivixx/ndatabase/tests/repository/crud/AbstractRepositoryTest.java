@@ -193,11 +193,5 @@ public abstract class AbstractRepositoryTest {
         integerKeyDao.insert(new StringKeyEntity("key"));
     }
 
-    @Test // no exception
-    public void azaz() {
-        Promise.AsyncResult<PlayerEntity> async = repository.getAsync(UUID.randomUUID());
-        async.thenAsync((playerEntity, throwable) -> {});
-        async.thenAsync((playerEntity, throwable) -> {});
-    }
 
 }

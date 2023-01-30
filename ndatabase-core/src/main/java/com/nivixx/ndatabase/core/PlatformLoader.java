@@ -49,8 +49,6 @@ public abstract class PlatformLoader extends AbstractModule  {
         Method method = clazz.getDeclaredMethod("set", NDatabaseAPI.class);
         method.setAccessible(true);
         method.invoke(null, injector.getInstance(NDatabaseAPI.class));
-
-        NDatabaseConfig nDatabaseConfig = injector.getInstance(NDatabaseConfig.class);
     }
 
     protected abstract DBLogger supplyDbLogger();

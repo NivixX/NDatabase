@@ -4,9 +4,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class DatabaseCallback<T> {
-    private boolean isAsync;
-    private boolean isProvidedExceptionHandler;
-    private BiConsumer<T, Throwable> callback;
+    private final boolean isAsync;
+    private final boolean isProvidedExceptionHandler;
+    private final BiConsumer<T, Throwable> callback;
 
     public DatabaseCallback(boolean isAsync, Consumer<T> callback) {
         this.isAsync = isAsync;

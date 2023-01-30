@@ -9,7 +9,7 @@
   <a><img alt="Authors" src="https://img.shields.io/badge/Authors-NivixX-blue"></a>  
 </p>
 
-# NDatabase
+# NDatabase (WIP)
 NDatabase is a lightweight and easy to use
 [key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) style database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Spigot / Sponge servers).
 It can be used as a plugin so you can install it once and use it everywhere without having to configure a database and duplicate connection pool each time you develop a new plugin. The API provide a fluent way to handle Async data fetch and server
@@ -20,7 +20,7 @@ main thread callback with [async to sync](#async-to-sync) mechanism. NDatabase c
 If you want  ot use NDatabase for your minecraft server, you can install it as a plugin easily, see [installation & quickstart](#async-to-sync). Creating a repository for your data model is now very easy, you can actually do that with one line of code.
 
 First let's define our data model, you just have to create a class which extends NEntity\<K> where K is the type of your key, currently UUID, String, Long, Integer types are supported.
-```
+```java
 @NTable(name = "player_statistics")
 public class PlayerStats extends NEntity<UUID> {
 
@@ -33,7 +33,7 @@ public class PlayerStats extends NEntity<UUID> {
 ```
 Then, you just have to do one API call and NDatabase will create the database schema according to your database configuration and return you a repository for your data model.
 
-```
+```java
 Repository<UUID, PlayerStats> repository = NDatabase.api().getOrCreateRepository(PlayerStats.class);
 
 ```
@@ -51,8 +51,8 @@ That's why you should always process heavy task and I/O task __*asynchronously*_
 In the scenario where you want to retrieve data asynchronously and use it inside your game context, you can do that by using the bukkit __*scheduler*__. The idea is to get the data in another thread and then schedule in the main thread, a task that is consuming your retrived data. It's doable by using the Bukkit methods but NDatabase provide you a fluent API to do that.
 
 Here is two examples:
-```
-Repository<UUID, BlockDTO> blockRepository = NDatabase.api().getOrCreateRepository(BlockDTO.class);
+```java
+Repository<String, BlockDTO> blockRepository = NDatabase.api().getOrCreateRepository(BlockDTO.class);
 // Async to Sync (get data async and consume it in the main thread)
 blockRepository.getAsync("id")
         .thenSync((bloc, exception) -> {
@@ -71,7 +71,7 @@ playerRepository.getAsync(joinedPlayer.getUUID())
                 // Handle exception
                 return;
             }
-            initPlayer(playerDTO);
+            loadPlayer(playerDTO);
         });
 ```
 <img src="https://i.imgur.com/q43cdhp.jpg" alt="drawing"/>
@@ -80,11 +80,35 @@ playerRepository.getAsync(joinedPlayer.getUUID())
 
 * **Full async**: in the second example, we retrieve the data of a player who just connected to the server asynchronously and consume this data in the same async thread, because we don't necessarily have to do bukkit operation but just cache some informations, so all this can be done of the main thread. Keep in mind that you should use concurrent collections to avoid getting `ConcurrentModificationException`
 
+
+## Installation & QuickStart usage
+
 ### Repository API usage
-#### Exception handling Sync
+There is all operations you can do with a repository,  mostly all of them implements a *Sync* and a *Async* version.
+
+| repository.\<method-name> | Sync | Async | Description                                          |
+|---------------------------|------|-------|------------------------------------------------------|
+| get(*key*)                | ✔️   | ✔️    | Return a entity by key, return null if doesn't exist |
+| insert(*nEntity*)         | ✔️   | ✔️    | Second Header                                        |
+| upsert(*nEntity*)         | ✔️   | ✔️    | Second Header                                        |
+| update(*nEntity*)         | ✔️   | ✔️    | Second Header                                        |
+| delete(*nEntity*)         | ✔️   | ✔️    | Second Header                                        |
+| findOne(*predicate*)      | ❌    | ✔️    | Second Header                                        |
+| find(*predicate*)         | ❌    | ✔️    | Second Header                                        |
+| streamAllValues(*key*)    | ✔️   | ✔️    | Second Header                                        |
+| deleteAll()               | ✔️   | ✔️    | Second Header                                        |
+
+### Exception handling
+All throwed exception will be wrapped as `NDatabaseException`and are runtime exceptions. You can catch more specific exception if it's required (see here). The way exceptions are handled will be different between sync and async.
+
+**SYNC**
+
+**ASYNC**
 #### Exception handling Async
 
-## Installation & quickStart
-
-## Future objectives
-
+## Build jar
+WIP
+### Future objectives
+WIP
+#### Built in mappers & automapped object wrapper
+WIP
