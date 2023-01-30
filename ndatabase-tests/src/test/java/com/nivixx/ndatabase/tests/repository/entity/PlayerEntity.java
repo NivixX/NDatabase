@@ -1,10 +1,7 @@
 package com.nivixx.ndatabase.tests.repository.entity;
 
-import com.google.inject.Inject;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.model.NEntity;
-import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
-import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.util.UUID;
 
