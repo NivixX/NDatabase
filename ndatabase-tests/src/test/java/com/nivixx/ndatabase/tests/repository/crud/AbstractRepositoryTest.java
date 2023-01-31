@@ -98,6 +98,23 @@ public abstract class AbstractRepositoryTest {
         Assert.assertEquals(entityFromDb.getScore(), 20);
     }
 
+
+    @Test
+    public void deleteExistingEntity() {
+        UUID uuid = UUID.randomUUID();
+        PlayerEntity playerEntity = new PlayerEntity(uuid);
+        repository.insert(playerEntity);
+        repository.delete(playerEntity);
+        PlayerEntity entityFromDb = repository.get(uuid);
+        Assert.assertNull(entityFromDb);
+    }
+
+
+    @Test(expected = NDatabaseException.class)
+    public void deleteNonExistingEntity() {
+        repository.delete(UUID.randomUUID());
+    }
+
     @Test
     public void findOneByScorePredicateAndPresent() {
         UUID player1Id = UUID.randomUUID();

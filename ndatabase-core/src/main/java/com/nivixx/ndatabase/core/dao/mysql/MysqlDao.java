@@ -3,6 +3,7 @@ package com.nivixx.ndatabase.core.dao.mysql;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.DatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
+import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.serialization.Serializer;
@@ -96,7 +97,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
             );
             bindKeyToStatement(ps,1, key);
             if(ps.executeUpdate() <= 0) {
-                throw new NDatabaseException("deleting failed for collection " + collectionName + " key " + key);
+                throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
         } catch (SQLException e) {
             throw new NDatabaseException(e);
@@ -119,7 +120,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
             ps.setObject(1, Serializer.toByteArray(value));
             bindKeyToStatement(ps,2, key);
             if(ps.executeUpdate() <= 0) {
-                throw new NDatabaseException("updating failed for collection " + collectionName + " key " + key);
+                throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
         } catch (SQLException e) {
             throw new NDatabaseException(e);

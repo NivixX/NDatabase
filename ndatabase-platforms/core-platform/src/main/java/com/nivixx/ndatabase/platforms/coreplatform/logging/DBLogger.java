@@ -25,7 +25,7 @@ public interface DBLogger {
         consumeInfoMessage().accept(String.format("deleted entity with key %s", key));
     }
     default void logDeleteAll() {
-        consumeInfoMessage().accept(String.format("deleted all%s")); // TODO entity type
+        consumeInfoMessage().accept(String.format("deleted all %s", "<collection name>")); // TODO entity type
     }
     default void logGet(Object value) {
         consumeInfoMessage().accept(String.format("get entity %s", value));

@@ -3,6 +3,7 @@ package com.nivixx.ndatabase.core.dao.inmemory;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
+import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.serialization.Serializer;
@@ -41,6 +42,9 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void delete(K key) {
+        if(!map.containsKey(key)) {
+            throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
+        }
         map.remove(key);
         dbLogger.logDelete(key);
     }
@@ -49,7 +53,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
     public void update(V value) {
         K key = value.getId();
         if(!map.containsKey(key)) {
-            throw new NDatabaseException("There is no value with the key " + key + " in the database");
+            throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
         }
         map.put(key, Serializer.toByteArray(value));
         dbLogger.logUpdate(value);

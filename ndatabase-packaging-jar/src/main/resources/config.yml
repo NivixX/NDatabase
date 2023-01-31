@@ -1,0 +1,27 @@
+# Your database type
+# - IN_MEMORY (default)
+# - MYSQL
+database-type: IN_MEMORY
+
+database:
+  mysql:
+    host: 'localhost'
+    port: 3306
+    user: ''
+    pass: ''
+
+    # Your MySQL database, note that you have to create the database yourself
+    # and give the permission to your configured user
+    database-name: ''
+
+    # Depending on your MySQL version or fork, you may want to change the driver
+    # default com.mysql.jdbc.Driver
+    driver-class-name: 'com.mysql.jdbc.Driver'
+
+    # Set the minimum constantly opened connection with your database
+    # note that the number of plugin won't multiply this number
+    # so you can config this number according to your needs
+    minimum-idle-connection: 3
+
+    # Maximum number of connection in the pool
+    maximum-pool-size: 10
