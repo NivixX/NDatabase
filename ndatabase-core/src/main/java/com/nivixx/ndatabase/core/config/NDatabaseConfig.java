@@ -6,6 +6,7 @@ public class NDatabaseConfig {
 
     protected DatabaseType databaseType;
     protected MysqlConfig mysqlConfig;
+    protected boolean isDebugMode;
 
     public void verifyConfig() {
         if(databaseType == null) {
@@ -17,6 +18,14 @@ public class NDatabaseConfig {
             Objects.requireNonNull(mysqlConfig.getUser(), "mysql user is null, check your mysql configuration");
             Objects.requireNonNull(mysqlConfig.getPass(), "mysql pass is null, check your mysql configuration");
         }
+    }
+
+    public boolean isDebugMode() {
+        return isDebugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        isDebugMode = debugMode;
     }
 
     public DatabaseType getDatabaseType() {

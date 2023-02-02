@@ -11,7 +11,7 @@
 
 # NDatabase (WIP)
 NDatabase is a lightweight and easy to use
-[key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) style database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Spigot / Sponge servers).
+[key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) style database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Bukkit / Spigot servers).
 It can be used as a plugin so you can install it once and use it everywhere without having to configure a database and duplicate connection pool each time you develop a new plugin. The API provide a fluent way to handle Async data fetch and server
 main thread callback with [async to sync](#async-to-sync) mechanism. NDatabase can support multiple databases (currently MySQL and In-memory implementation).
 
@@ -143,12 +143,12 @@ public class PlayerStatsDTO extends NEntity<UUID> {
     public PlayerStatsDTO() { }
 }
 ```
-Define your table name with the `NTable` annotation, only the `name` is mandatory, you can choose to not specify a `schema` or `catalog`.
+Define your table name with the `@NTable` annotation, only the `name` is mandatory, you can choose to not specify a `schema` or `catalog`.
 
-Behind the scene, NDatabase will convert your object to a JSON, it's optional, but I recommend specifying the field name with the `@JsonProperty` annotation, because your schema will still work event if you change your variable name.
+Behind the scene, NDatabase will convert your object to a JSON, it's optional, but I recommend specifying the field name with the `@JsonProperty` annotation, because your schema will still work even if you change your variable name.
 
 Last but not least, you can embed other objects inside your data model. 
-Every object **must** be `Serializable`, so for instance, you cannot store a `Bukkit.Location` objects as it is linked to your minecraft server domains context, which is volatile. 
+Every object **must** be `Serializable`, so for instance, you cannot store a `Bukkit.Location` object as it is linked to your minecraft server domains context, which is volatile. 
 I recommend you to check the [Data model design best practices](#async-to-sync) section to know best practices and *domain<>dto* separation.
 ### Repository API usage
 There is all operations you can do with a repository,  mostly all of them implements a *Sync* and an *Async* version.

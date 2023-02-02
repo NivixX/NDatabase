@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
+import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
@@ -17,16 +18,16 @@ public abstract class PlatformLoader extends AbstractModule  {
 
     @Override
     protected void configure() {
-        bind(DBLogger.class).toInstance(supplyDbLogger());
         bind(SyncExecutor.class).toInstance(supplySyncExecutor());
 
         NDatabaseConfig nDatabaseConfig = supplyNDatabaseConfig();
         nDatabaseConfig.verifyConfig();
-        if(nDatabaseConfig.getMysqlConfig() != null) {
+        if(nDatabaseConfig.getDatabaseType() == DatabaseType.MYSQL) {
             bind(MysqlConnectionPool.class).toInstance(new MysqlConnectionPool(nDatabaseConfig.getMysqlConfig()));
         }
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 
+        bind(DBLogger.class).toInstance(supplyDbLogger(nDatabaseConfig));
         bind(NDatabaseAPI.class).to(NDatabaseAPIImpl.class);
     }
 
@@ -51,7 +52,7 @@ public abstract class PlatformLoader extends AbstractModule  {
         method.invoke(null, injector.getInstance(NDatabaseAPI.class));
     }
 
-    protected abstract DBLogger supplyDbLogger();
+    protected abstract DBLogger supplyDbLogger(NDatabaseConfig nDatabaseConfig);
     protected abstract SyncExecutor supplySyncExecutor();
     protected abstract NDatabaseConfig supplyNDatabaseConfig();
 }

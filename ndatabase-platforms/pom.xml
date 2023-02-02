@@ -20,6 +20,7 @@
     <modules>
         <module>core-platform</module>
         <module>bukkit-platform</module>
+        <module>sponge-platform</module>
         <module>app-platform</module>
     </modules>
 

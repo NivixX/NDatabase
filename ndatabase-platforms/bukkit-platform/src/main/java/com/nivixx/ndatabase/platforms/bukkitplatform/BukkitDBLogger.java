@@ -6,25 +6,24 @@ import org.bukkit.Bukkit;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
-public class BukkitDBLogger implements DBLogger {
+public class BukkitDBLogger extends DBLogger {
 
-    private boolean debugMode;
-
-    public BukkitDBLogger(boolean debugMode) {
-        this.debugMode = debugMode;
+    public BukkitDBLogger(boolean isDebugMode) {
+        super(isDebugMode);
     }
 
     @Override
-    public Consumer<String> consumeDebugMessage() {
-        if(!debugMode) return (msg) -> {};
-        return (msg) -> Bukkit.getLogger().info("NDatabase-debug: " + msg);
+    public Consumer<Supplier<String>> consumeDebugMessage() {
+        if(!isDebugMode) return (msg) -> {};
+        return (msg) -> Bukkit.getLogger().info("NDatabase-debug: " + msg.get());
     }
 
     @Override
-    public Consumer<String> consumeInfoMessage() {
-        return (msg) -> Bukkit.getLogger().info(msg);
+    public Consumer<Supplier<String>> consumeInfoMessage() {
+        return (msg) -> Bukkit.getLogger().info(msg.get());
     }
 
     @Override
@@ -33,7 +32,7 @@ public class BukkitDBLogger implements DBLogger {
     }
 
     @Override
-    public Consumer<String> consumeWarnMessage() {
-        return (msg) -> Bukkit.getLogger().warning(msg);
+    public Consumer<Supplier<String>> consumeWarnMessage() {
+        return (msg) -> Bukkit.getLogger().warning(msg.get());
     }
 }

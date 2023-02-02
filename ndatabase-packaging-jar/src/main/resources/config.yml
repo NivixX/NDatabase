@@ -3,6 +3,9 @@
 # - MYSQL
 database-type: IN_MEMORY
 
+# Print all operations inside the database in the console with the value formatted as Json
+debug-mode: false
+
 database:
   mysql:
     host: 'localhost'

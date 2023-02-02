@@ -1,5 +1,6 @@
 package com.nivixx.ndatabase.platforms.bukkitplatform;
 
+import com.nivixx.ndatabase.core.Injector;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.MysqlConfig;
@@ -15,11 +16,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class BukkitPlaformLoader extends PlatformLoader {
 
     @Override
-    public DBLogger supplyDbLogger() {
-        NDatabasePlugin instance = NDatabasePlugin.getInstance();
-        FileConfiguration config = instance.getConfig();
-        boolean debug = config.getBoolean("enable-database-debug-messages", false);
-        return new BukkitDBLogger(debug);
+    public DBLogger supplyDbLogger(NDatabaseConfig nDatabaseConfig) {
+        return new BukkitDBLogger(nDatabaseConfig.isDebugMode());
     }
 
     @Override
@@ -41,8 +39,10 @@ public class BukkitPlaformLoader extends PlatformLoader {
         mysqlConfig.setDatabaseName(mysql.getString("database-name"));
         mysqlConfig.setUser(mysql.getString("user"));
         mysqlConfig.setPass(mysql.getString("pass"));
+        boolean debug = config.getBoolean("debug-mode", false);
 
         BukkitNDatabaseConfig bukkitNDatabaseConfig = new BukkitNDatabaseConfig();
+        bukkitNDatabaseConfig.setDebugMode(debug);
         bukkitNDatabaseConfig.setDatabaseType(DatabaseType.valueOf(config.getString("database-type")));
         bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
 

@@ -46,6 +46,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps);
         }
+        dbLogger.logInsert(value);
     }
 
 
@@ -69,6 +70,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps);
         }
+        dbLogger.logUpsert(value);
     }
 
     private void bindKeyToStatement(PreparedStatement ps, int fieldIndex, K key) throws SQLException {
@@ -104,6 +106,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps);
         }
+        dbLogger.logDelete(key);
     }
 
     @Override
@@ -127,6 +130,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps);
         }
+        dbLogger.logUpdate(value);
     }
 
     @Override
@@ -144,6 +148,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps);
         }
+        dbLogger.logDeleteAll();
     }
 
 
@@ -208,6 +213,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps, rs);
         }
+        dbLogger.logGet(dataFound);
         if(dataFound == null) { return null; }
         return Serializer.deserialize(dataFound, classz);
     }
@@ -245,10 +251,10 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
     private String getDatabaseKeyType() {
         if(keyType.isAssignableFrom(UUID.class)) {
-            return "VARCHAR(36)";
+            return "CHAR(36)";
         }
         if(keyType.isAssignableFrom(String.class)) {
-            return "VARCHAR";
+            return "VARCHAR(80)";
         }
         if(keyType.isAssignableFrom(Long.class)) {
             return "LONG";

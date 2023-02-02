@@ -1,5 +1,8 @@
 package com.nivixx.ndatabase.core.dao.inmemory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;

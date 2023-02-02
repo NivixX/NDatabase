@@ -1,12 +1,13 @@
 package com.nivixx.ndatabase.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 
 public abstract class NEntity<K> {
 
-    protected K id;
-    protected Instant createdAt;
-    protected Instant updatedAt;
+    //TODO @JsonIgnore // Don't store the id twice (in the K-V value)
+    protected /*transient*/ K id;
 
     public NEntity() {
     }
@@ -23,12 +24,5 @@ public abstract class NEntity<K> {
         this.id = id;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
 
 }

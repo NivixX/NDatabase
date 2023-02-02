@@ -2,6 +2,7 @@ package com.nivixx.ndatabase.core.serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nivixx.ndatabase.api.model.NEntity;
 
@@ -26,6 +27,7 @@ public class Serializer {
         if(obj == null) { return null; }
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.disable(MapperFeature.USE_ANNOTATIONS);
         try {
             return objectMapper.writeValueAsBytes(obj);
         } catch (JsonProcessingException e) {

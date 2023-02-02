@@ -16,6 +16,7 @@ public class NDatabasePlugin extends JavaPlugin {
         saveResource("config.yml", false);
         PlatformLoader plaformLoader = new BukkitPlaformLoader();
         this.instance = this;
+
         try {
             plaformLoader.load();
         } catch (Throwable e) {

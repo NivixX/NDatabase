@@ -40,6 +40,16 @@ public class MysqlConnectionPool {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(mysqlConfig.getHost()
         );
+        /*
+                config.setJdbcUrl(
+                "jdbc:mysql://" +
+                        hostname +
+                        ":" +
+                        port +
+                        "/" +
+                        database
+        );
+         */
         config.setDriverClassName(mysqlConfig.getClassName());
         config.setUsername(mysqlConfig.getUser());
         config.setPassword(mysqlConfig.getPass());
