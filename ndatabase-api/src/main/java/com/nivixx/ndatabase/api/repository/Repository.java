@@ -18,22 +18,24 @@ public interface Repository<K, V extends NEntity<K>> {
     Promise.AsyncResult<List<V>> findAsync(Predicate<V> predicate);
 
     void insert(V value) throws NDatabaseException;
-    Promise.AsyncResult<Void> insertAsync(V value) throws NDatabaseException;
+
+    //TODO GENERIC
+    Promise.AsyncEmptyResult insertAsync(V value) throws NDatabaseException;
 
     void upsert(V value) throws NDatabaseException;
-    Promise.AsyncResult<Void> upsertAsync(V value) throws NDatabaseException;
+    Promise.AsyncEmptyResult upsertAsync(V value) throws NDatabaseException;
 
     void update(V value) throws NDatabaseException;
-    Promise.AsyncResult<Void> updateAsync(V value) throws NDatabaseException;
+    Promise.AsyncEmptyResult updateAsync(V value) throws NDatabaseException;
 
     void delete(K key) throws NDatabaseException;
-    Promise.AsyncResult<Void> deleteAsync(K key) throws NDatabaseException;
+    Promise.AsyncEmptyResult deleteAsync(K key) throws NDatabaseException;
 
     void delete(V value) throws NDatabaseException;
-    Promise.AsyncResult<Void> deleteAsync(V value) throws NDatabaseException;
+    Promise.AsyncEmptyResult deleteAsync(V value) throws NDatabaseException;
 
     void deleteAll() throws NDatabaseException;
-    Promise.AsyncResult<Void> deleteAllAsync() throws NDatabaseException;
+    Promise.AsyncEmptyResult deleteAllAsync() throws NDatabaseException;
 
     Stream<V> streamAllValues() throws NDatabaseException;
     Promise.AsyncResult<Stream<V>> streamAllValuesAsync() throws NDatabaseException;
