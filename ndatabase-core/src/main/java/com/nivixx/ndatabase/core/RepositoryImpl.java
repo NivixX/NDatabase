@@ -5,7 +5,8 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.promise.AsyncResultImpl;
+import com.nivixx.ndatabase.core.promise.pipeline.PromiseEmptyResultPipeline;
+import com.nivixx.ndatabase.core.promise.pipeline.PromiseResultPipeline;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
@@ -37,20 +38,20 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     @Override
     public Promise.AsyncResult<V> getAsync(K key) {
         CompletableFuture<V> future = CompletableFuture.supplyAsync(() -> dao.get(key, classz));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseResultPipeline<>(future, syncExecutor, dbLogger);
     }
 
     @Override
     public Promise.AsyncResult<Optional<V>> findOneAsync(Predicate<V> predicate) {
         CompletableFuture<Optional<V>> future = CompletableFuture.supplyAsync(() -> dao.findOne(predicate, classz));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseResultPipeline<>(future, syncExecutor, dbLogger);
     }
 
 
     @Override
     public Promise.AsyncResult<List<V>> findAsync(Predicate<V> predicate) {
         CompletableFuture<List<V>> future = CompletableFuture.supplyAsync(() -> dao.find(predicate, classz));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseResultPipeline<>(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -59,9 +60,9 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> insertAsync(V value) {
+    public Promise.AsyncEmptyResult insertAsync(V value) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> dao.insert(value));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseEmptyResultPipeline(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -70,9 +71,9 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> upsertAsync(V value) {
+    public Promise.AsyncEmptyResult upsertAsync(V value) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> dao.upsert(value));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseEmptyResultPipeline(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -81,9 +82,9 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> updateAsync(V value) {
+    public Promise.AsyncEmptyResult updateAsync(V value) {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> dao.update(value));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseEmptyResultPipeline(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -92,9 +93,9 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> deleteAsync(K key)  {
+    public Promise.AsyncEmptyResult deleteAsync(K key)  {
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> dao.delete(key));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseEmptyResultPipeline(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> deleteAsync(V value)  {
+    public Promise.AsyncEmptyResult deleteAsync(V value)  {
         return deleteAsync(value.getId());
     }
 
@@ -113,9 +114,9 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     }
 
     @Override
-    public Promise.AsyncResult<Void> deleteAllAsync() throws NDatabaseException {
+    public Promise.AsyncEmptyResult deleteAllAsync() throws NDatabaseException {
         CompletableFuture<Void> future = CompletableFuture.runAsync(dao::deleteAll);
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseEmptyResultPipeline(future, syncExecutor, dbLogger);
     }
 
     @Override
@@ -126,6 +127,6 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     @Override
     public Promise.AsyncResult<Stream<V>> streamAllValuesAsync() throws NDatabaseException {
         CompletableFuture<Stream<V>> future = CompletableFuture.supplyAsync(() -> dao.streamAllValues(classz));
-        return new AsyncResultImpl<>(future, syncExecutor, dbLogger);
+        return new PromiseResultPipeline<>(future, syncExecutor, dbLogger);
     }
 }
