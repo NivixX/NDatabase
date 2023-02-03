@@ -1,10 +1,11 @@
 <p align="left">
-  <img width="20%" height="20%" src="https://i.TODO.png">
+  <img height="100" src="https://i.imgur.com/xeBRDpy.jpeg">
   <br> <br>
   <a href="https://www.codacy.com/gh/NivixX/NDatabase/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NDatabase/NivixX&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/521e578f30d64d7d9e4d4eb30057c086"/></a>
   <a><img alt="Issues" src="https://img.shields.io/github/issues/NivixX/NDatabase"></a>
   <a><img alt="Forks" src="https://img.shields.io/github/forks/NivixX/NDatabase"></a>
   <a><img alt="Stars" src="https://img.shields.io/github/stars/NivixX/NDatabase"></a>
+  <a><img alt="jitpack" src="https://jitpack.io/v/NivixX/NDatabase.svg"></a>
   <a><img alt="License" src="https://img.shields.io/github/license/NivixX/NDatabase"></a>
   <a><img alt="Authors" src="https://img.shields.io/badge/Authors-NivixX-blue"></a>  
 </p>
