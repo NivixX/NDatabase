@@ -100,12 +100,12 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
 
     @Override
     public void delete(V value) throws NDatabaseException {
-        delete(value.getId());
+        delete(value.getKey());
     }
 
     @Override
     public Promise.AsyncEmptyResult deleteAsync(V value)  {
-        return deleteAsync(value.getId());
+        return deleteAsync(value.getKey());
     }
 
     @Override

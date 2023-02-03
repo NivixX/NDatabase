@@ -30,7 +30,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void insert(V value) throws NDatabaseException {
-        K key = value.getId();
+        K key = value.getKey();
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -52,7 +52,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void upsert(V value) throws NDatabaseException {
-        K key = value.getId();
+        K key = value.getKey();
         Connection connection = null;
         PreparedStatement ps = null;
         try {
@@ -111,7 +111,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void update(V value) throws NDatabaseException {
-        K key = value.getId();
+        K key = value.getKey();
         Connection connection = null;
         PreparedStatement ps = null;
         try {

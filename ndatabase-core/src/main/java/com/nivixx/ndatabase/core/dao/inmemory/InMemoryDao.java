@@ -1,8 +1,5 @@
 package com.nivixx.ndatabase.core.dao.inmemory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
@@ -28,7 +25,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void insert(V value) {
-        K key = value.getId();
+        K key = value.getKey();
         if(map.containsKey(key)) {
             throw new DuplicateKeyException("A value with key " + key + " already exist");
         }
@@ -38,7 +35,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void upsert(V value) {
-        K key = value.getId();
+        K key = value.getKey();
         map.put(key, Serializer.toByteArray(value));
         dbLogger.logUpsert(value);
     }
@@ -54,7 +51,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void update(V value) {
-        K key = value.getId();
+        K key = value.getKey();
         if(!map.containsKey(key)) {
             throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
         }
