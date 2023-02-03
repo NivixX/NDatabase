@@ -110,6 +110,7 @@ database:
 Once the NDatabase plugin is running on your server, you are good to go and you can use the API in any of your plugins without reconfiguring a database.
 
 ### Add dependency to your project
+Gradle
 ```
 allprojects {
     repositories {
@@ -118,8 +119,23 @@ allprojects {
     }
 }
 dependencies {
-    implementation 'com.github.User:Repo:Tag' TODO
+        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.1.1'
 }
+```
+Maven
+```
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.NivixX.NDatabase</groupId>
+    <artifactId>ndatabase-api</artifactId>
+    <version>0.1.1</version>
+</dependency>
 ```
 
 ### Define your data model
