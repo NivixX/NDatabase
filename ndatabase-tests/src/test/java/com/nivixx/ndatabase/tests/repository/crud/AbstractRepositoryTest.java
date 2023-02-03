@@ -1,7 +1,6 @@
 package com.nivixx.ndatabase.tests.repository.crud;
 
 import com.nivixx.ndatabase.api.NDatabase;
-import com.nivixx.ndatabase.api.Promise;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.PlatformLoader;
@@ -42,7 +41,7 @@ public abstract class AbstractRepositoryTest {
         UUID uuid = UUID.randomUUID();
         PlayerEntity playerEntity = new PlayerEntity(uuid);
         repository.insert(playerEntity);
-        repository.delete(playerEntity.getId());
+        repository.delete(playerEntity.getKey());
         PlayerEntity entityFromDb = repository.get(uuid);
         Assert.assertNull(entityFromDb);
     }
@@ -126,7 +125,7 @@ public abstract class AbstractRepositoryTest {
         Optional<PlayerEntity> playerWith20Score =
                 repository.findOneAsync(playerEntity -> playerEntity.getScore() == 20).getResultFuture().join();
         Assert.assertTrue(playerWith20Score.isPresent());
-        Assert.assertEquals(playerWith20Score.get().getId(), player2Id);
+        Assert.assertEquals(playerWith20Score.get().getKey(), player2Id);
     }
 
     @Test
@@ -157,9 +156,9 @@ public abstract class AbstractRepositoryTest {
                 repository.findAsync(playerEntity -> playerEntity.getScore() > 15).getResultFuture().join();
         Assert.assertEquals(playersWithScoreHigherThan15.size(), 2);
         Assert.assertTrue(playersWithScoreHigherThan15.stream()
-                .anyMatch(playerEntity -> playerEntity.getId().equals(player2Id)));
+                .anyMatch(playerEntity -> playerEntity.getKey().equals(player2Id)));
         Assert.assertTrue(playersWithScoreHigherThan15.stream()
-                .anyMatch(playerEntity -> playerEntity.getId().equals(player3Id)));
+                .anyMatch(playerEntity -> playerEntity.getKey().equals(player3Id)));
     }
 
     @Test
