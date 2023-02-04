@@ -6,16 +6,19 @@ database-type: IN_MEMORY
 # Print all operations inside the database in the console with the value formatted as Json
 debug-mode: false
 
+# The number of thread that will be used for your async database call
+# If you are using MySQL, I would advice to set the same number as "minimum idle connection"
+# In the case were you have more than 3 running operation, extra thread will be created temporarily
+idle-thread-pool-size: 3
+
 database:
   mysql:
-    host: 'localhost'
-    port: 3306
+
+    # Full host path containing host:port/database_name
+    # exemple: jdbc:mysql://localhost:3306/ndatabase
+    host: 'jdbc:mysql://localhost:3306/your_database_name'
     user: ''
     pass: ''
-
-    # Your MySQL database, note that you have to create the database yourself
-    # and give the permission to your configured user
-    database-name: ''
 
     # Depending on your MySQL version or fork, you may want to change the driver
     # default com.mysql.jdbc.Driver

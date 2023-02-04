@@ -1,5 +1,6 @@
 package com.nivixx.ndatabase.core.promise.pipeline;
 
+import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.callback.PromiseCallback;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
@@ -11,6 +12,7 @@ public abstract class PromisePipeline<P extends PromiseCallback, E>  {
 
     protected final CompletableFuture<E> databaseResultFuture;
     protected final SyncExecutor syncExecutor;
+    protected final AsyncThreadPool asyncThreadPool;
     protected final DBLogger dbLogger;
 
     protected AtomicReference<P> promiseCallbackRef;
@@ -20,10 +22,12 @@ public abstract class PromisePipeline<P extends PromiseCallback, E>  {
 
     public PromisePipeline(CompletableFuture<E> databaseResultFuture,
                            SyncExecutor syncExecutor,
+                           AsyncThreadPool asyncThreadPool,
                            DBLogger dbLogger) {
 
         this.databaseResultFuture = databaseResultFuture;
         this.syncExecutor = syncExecutor;
+        this.asyncThreadPool = asyncThreadPool;
         this.dbLogger = dbLogger;
         this.promiseCallbackRef = new AtomicReference<>();
     }

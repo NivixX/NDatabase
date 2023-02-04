@@ -1,6 +1,7 @@
 package com.nivixx.ndatabase.core.promise.pipeline;
 
 import com.nivixx.ndatabase.api.Promise;
+import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.callback.PromiseCallback;
 import com.nivixx.ndatabase.core.promise.callback.PromiseResultCallback;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
@@ -11,12 +12,14 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unchecked")
 public class PromiseResultPipeline<P extends PromiseResultCallback<E>, E> extends PromisePipeline<P,E> implements Promise.AsyncResult<E> {
 
     public PromiseResultPipeline(CompletableFuture<E> databaseResultFuture,
                                  SyncExecutor syncExecutor,
+                                 AsyncThreadPool asyncThreadPool,
                                  DBLogger dbLogger) {
-        super(databaseResultFuture, syncExecutor, dbLogger);
+        super(databaseResultFuture, syncExecutor, asyncThreadPool, dbLogger);
     }
 
 
@@ -27,9 +30,7 @@ public class PromiseResultPipeline<P extends PromiseResultCallback<E>, E> extend
 
     @Override
     public void thenAsync(Consumer<E> valueConsumer) {
-        PromiseResultCallback<E> promiseResultCallback = new PromiseResultCallback<E>(true, valueConsumer);
-        PromiseCallback a = promiseResultCallback;
-        setCallbackAndHandlePromise((P) a); // TODO
+        setCallbackAndHandlePromise((P) new PromiseResultCallback<E>(true, valueConsumer));
     }
 
     @Override
@@ -49,7 +50,7 @@ public class PromiseResultPipeline<P extends PromiseResultCallback<E>, E> extend
 
     @Override
     public void handleDatabasePromise() {
-        Executors.newCachedThreadPool().execute(() -> {
+        asyncThreadPool.getExecutor().execute(() -> {
             E entityResult;
             P promiseCallback = promiseCallbackRef.get();
 

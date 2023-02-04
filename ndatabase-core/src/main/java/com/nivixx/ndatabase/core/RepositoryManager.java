@@ -6,6 +6,7 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
+import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
@@ -44,7 +45,8 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         // Init repository
         DBLogger dbLogger = Injector.resolveInstance(DBLogger.class);
         SyncExecutor syncExecutor = Injector.resolveInstance(SyncExecutor.class);
-        Repository<K,V> repository = new RepositoryImpl<>(dao, entityType, syncExecutor, dbLogger);
+        AsyncThreadPool asyncThreadPool = Injector.resolveInstance(AsyncThreadPool.class);
+        Repository<K,V> repository = new RepositoryImpl<>(dao, entityType, syncExecutor, asyncThreadPool, dbLogger);
         repositoryCache.put(entityType, repository);
 
         return repository;

@@ -4,9 +4,10 @@ import java.util.Objects;
 
 public class NDatabaseConfig {
 
-    protected DatabaseType databaseType;
+    protected DatabaseType databaseType = DatabaseType.IN_MEMORY;
     protected MysqlConfig mysqlConfig;
-    protected boolean isDebugMode;
+    protected boolean isDebugMode = false;
+    protected int idleThreadPoolSize = 1;
 
     public void verifyConfig() {
         if(databaseType == null) {
@@ -42,5 +43,13 @@ public class NDatabaseConfig {
 
     public void setMysqlConfig(MysqlConfig mysqlConfig) {
         this.mysqlConfig = mysqlConfig;
+    }
+
+    public int getIdleThreadPoolSize() {
+        return idleThreadPoolSize;
+    }
+
+    public void setIdleThreadPoolSize(int idleThreadPoolSize) {
+        this.idleThreadPoolSize = idleThreadPoolSize;
     }
 }

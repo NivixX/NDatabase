@@ -1,6 +1,7 @@
 package com.nivixx.ndatabase.tests.promise;
 
 import com.nivixx.ndatabase.api.Promise;
+import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseEmptyResultPipeline;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseResultPipeline;
 import com.nivixx.ndatabase.platforms.appplatform.AppDBLogger;
@@ -37,17 +38,19 @@ public class EmptyResultPromiseTest {
 
     private DBLogger dbLogger;
     private SyncExecutor syncExecutor;
+    private AsyncThreadPool asyncThreadPool;
 
     @Before
     public void init() {
         dbLogger = new AppDBLogger(true);
         syncExecutor = new AppSyncExecutor();
+        asyncThreadPool = new AsyncThreadPool(3);
         dbOperation = new CompletableFuture<>();
     }
 
     @Test
     public void operationSuccess_thenSync_callBackWithExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenSync(exceptionHandleCallbackMock);
         dbOperation.complete(null);
         awaitResult(() -> verify(exceptionHandleCallbackMock, times(1)).accept(any()));
@@ -55,7 +58,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationSuccess_thenAsync_callBackWithExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenAsync(exceptionHandleCallbackMock);
         dbOperation.complete(null);
         awaitResult(() -> verify(exceptionHandleCallbackMock, times(1)).accept(any()));
@@ -63,7 +66,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationSuccess_thenSync_callBackWithoutExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenSync(noExceptionHandleCallbackMock);
         dbOperation.complete(null);
         awaitResult(() -> verify(noExceptionHandleCallbackMock, times(1)).run());
@@ -71,7 +74,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationSuccess_thenAsync_callBackWithoutExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenAsync(noExceptionHandleCallbackMock);
         dbOperation.complete(null);
         awaitResult(() -> verify(noExceptionHandleCallbackMock, times(1)).run());
@@ -80,7 +83,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationException_thenSync_callBackWithExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenSync(exceptionHandleCallbackMock);
         dbOperation.completeExceptionally(new RuntimeException());
         awaitResult(() -> verify(exceptionHandleCallbackMock, times(1)).accept(any(Throwable.class)));
@@ -88,7 +91,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationException_thenASync_callBackWithExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenAsync(exceptionHandleCallbackMock);
         dbOperation.completeExceptionally(new RuntimeException());
         awaitResult(() -> verify(exceptionHandleCallbackMock, times(1)).accept(any(Throwable.class)));
@@ -96,7 +99,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationException_thenSync_callBackWithoutExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenSync(noExceptionHandleCallbackMock);
         dbOperation.completeExceptionally(new RuntimeException());
         awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock));
@@ -104,7 +107,7 @@ public class EmptyResultPromiseTest {
 
     @Test
     public void operationException_thenASync_callBackWithoutExceptionHandling() {
-        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, dbLogger);
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
         promise.thenAsync(noExceptionHandleCallbackMock);
         dbOperation.completeExceptionally(new RuntimeException());
         awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock));

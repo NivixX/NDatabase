@@ -6,7 +6,8 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.serialization.Serializer;
+import com.nivixx.ndatabase.core.serialization.BytesNEntityEncoder;
+import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.sql.*;
@@ -23,9 +24,16 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
     private final String DATA_IDENTIFIER = "data";
     private final String DATA_KEY_IDENTIFIER = "data_key";
 
-    public MysqlDao(String collectionName, String schema, Class<K> keyType, MysqlConnectionPool connectionPoolManager, DBLogger dbLogger) {
+    private NEntityEncoder<V, byte[]> byteObjectSerializer;
+
+
+    public MysqlDao(String collectionName,
+                    String schema, Class<K> keyType,
+                    MysqlConnectionPool connectionPoolManager,
+                    DBLogger dbLogger) {
         super(collectionName, schema, keyType, dbLogger);
         this.pool = connectionPoolManager;
+        this.byteObjectSerializer = new BytesNEntityEncoder<>();
     }
 
     @Override
@@ -39,7 +47,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
                     "INSERT INTO " + collectionName + " VALUES(?,?)"
             );
             bindKeyToStatement(ps,1, key);
-            ps.setObject(2, Serializer.toByteArray(value));
+            ps.setObject(2, byteObjectSerializer.encode(value));
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException();
@@ -60,7 +68,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
             ps = connection.prepareStatement(
                     "INSERT INTO " + collectionName + " VALUES(?,?) ON DUPLICATE KEY UPDATE " + DATA_IDENTIFIER + " = ?"
             );
-            byte[] valueBytes = Serializer.toByteArray(value);
+            byte[] valueBytes = byteObjectSerializer.encode(value);
             bindKeyToStatement(ps,1, key);
             ps.setObject(2, valueBytes);
             ps.setObject(3, valueBytes);
@@ -120,7 +128,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
                     "UPDATE  " + collectionName + " SET "+ DATA_IDENTIFIER +  "= ? WHERE " + DATA_KEY_IDENTIFIER +"= ?"
             );
 
-            ps.setObject(1, Serializer.toByteArray(value));
+            ps.setObject(1, byteObjectSerializer.encode(value));
             bindKeyToStatement(ps,2, key);
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
@@ -169,7 +177,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
                             close(connection, ps, rs);
                             return false;
                         }
-                        final V value = Serializer.deserialize(rs.getBytes(DATA_IDENTIFIER), classz);
+                        final V value = byteObjectSerializer.decode(rs.getBytes(DATA_IDENTIFIER), classz);
                         action.accept(value);
                         return true;
                     } catch (Exception e) {
@@ -215,7 +223,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
         }
         dbLogger.logGet(dataFound);
         if(dataFound == null) { return null; }
-        return Serializer.deserialize(dataFound, classz);
+        return byteObjectSerializer.decode(dataFound, classz);
     }
 
     @Override

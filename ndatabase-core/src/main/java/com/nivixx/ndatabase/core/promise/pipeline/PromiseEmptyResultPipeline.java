@@ -1,6 +1,7 @@
 package com.nivixx.ndatabase.core.promise.pipeline;
 
 import com.nivixx.ndatabase.api.Promise;
+import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.callback.PromiseEmptyResultCallback;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
@@ -9,16 +10,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unchecked")
 public class PromiseEmptyResultPipeline<P extends PromiseEmptyResultCallback, E> extends PromisePipeline<P,E> implements Promise.AsyncEmptyResult {
 
     public PromiseEmptyResultPipeline(CompletableFuture<E> databaseResultFuture,
                                       SyncExecutor syncExecutor,
+                                      AsyncThreadPool asyncThreadPool,
                                       DBLogger dbLogger) {
-        super(databaseResultFuture, syncExecutor, dbLogger);
+        super(databaseResultFuture, syncExecutor, asyncThreadPool, dbLogger);
     }
 
-    public CompletableFuture getResultFuture() {
-        return databaseResultFuture;
+    public CompletableFuture<Void> getResultFuture() {
+        return (CompletableFuture<Void>) databaseResultFuture;
     }
 
 
@@ -45,7 +48,7 @@ public class PromiseEmptyResultPipeline<P extends PromiseEmptyResultCallback, E>
 
     @Override
     public void handleDatabasePromise() {
-        Executors.newCachedThreadPool().execute(() -> {
+        asyncThreadPool.getExecutor().execute(() -> {
             P promiseCallback = promiseCallbackRef.get();
 
             try {

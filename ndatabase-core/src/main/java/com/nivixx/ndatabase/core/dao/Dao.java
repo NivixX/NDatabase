@@ -25,6 +25,7 @@ public abstract class Dao<K, V extends NEntity<K>> {
         this.collectionName = collectionName;
         this.keyType = keyType;
         this.dbLogger = dbLogger;
+        this.schema = schema;
     }
 
     public abstract void insert(V value) throws NDatabaseException;

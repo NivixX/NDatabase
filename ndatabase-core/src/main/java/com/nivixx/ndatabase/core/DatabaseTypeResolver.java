@@ -1,5 +1,8 @@
 package com.nivixx.ndatabase.core;
 
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
+import com.google.inject.util.Types;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.model.NEntity;
@@ -8,9 +11,12 @@ import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlConnectionPool;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlDao;
+import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class DatabaseTypeResolver {
 
@@ -25,7 +31,12 @@ public class DatabaseTypeResolver {
                 return new InMemoryDao<>(nTable.name(), nTable.schema(), keyType, dbLogger);
             case MYSQL:
                 MysqlConnectionPool jdbcConnectionPool = Injector.resolveInstance(MysqlConnectionPool.class);
-                return new MysqlDao<>(nTable.name(), nTable.schema(), keyType, jdbcConnectionPool, dbLogger);
+                return new MysqlDao<>(
+                        nTable.name(),
+                        nTable.schema(),
+                        keyType,
+                        jdbcConnectionPool,
+                        dbLogger);
             default:
                 throw new DatabaseCreationException("Database type has not been provided in the config");
         }

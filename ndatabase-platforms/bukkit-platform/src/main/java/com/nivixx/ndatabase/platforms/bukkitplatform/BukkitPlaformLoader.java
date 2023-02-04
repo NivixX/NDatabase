@@ -43,6 +43,7 @@ public class BukkitPlaformLoader extends PlatformLoader {
 
         BukkitNDatabaseConfig bukkitNDatabaseConfig = new BukkitNDatabaseConfig();
         bukkitNDatabaseConfig.setDebugMode(debug);
+        bukkitNDatabaseConfig.setIdleThreadPoolSize(config.getInt("idle-thread-pool-size",3));
         bukkitNDatabaseConfig.setDatabaseType(DatabaseType.valueOf(config.getString("database-type")));
         bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
 

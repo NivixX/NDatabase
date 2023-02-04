@@ -82,16 +82,17 @@ playerRepository.getAsync(joinedPlayer.getUUID())
 # - MYSQL
 database-type: IN_MEMORY
 
+# Print all operations inside the database in the console with the value formatted as Json
+debug-mode: false
+
 database:
   mysql:
-    host: 'localhost'
-    port: 3306
+
+    # Full host path containing host:port/database_name
+    # exemple: jdbc:mysql://localhost:3306/ndatabase
+    host: 'jdbc:mysql://localhost:3306/your_database_name'
     user: ''
     pass: ''
-
-    # Your MySQL database, note that you have to create the database yourself
-    # and give the permission to your configured user
-    database-name: ''
 
     # Depending on your MySQL version or fork, you may want to change the driver
     # default com.mysql.jdbc.Driver

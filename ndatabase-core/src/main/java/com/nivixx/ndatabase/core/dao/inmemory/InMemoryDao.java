@@ -6,7 +6,8 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.serialization.Serializer;
+import com.nivixx.ndatabase.core.serialization.BytesNEntityEncoder;
+import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.util.*;
@@ -17,10 +18,12 @@ import java.util.stream.Stream;
 public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     private Map<K, byte[]> map;
+    private NEntityEncoder<V, byte[]> byteObjectSerializer;
 
     public InMemoryDao(String collectionName, String schema, Class<K> keyType, DBLogger dbLogger)  {
         super(collectionName, schema, keyType, dbLogger);
         this.map = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.byteObjectSerializer = new BytesNEntityEncoder<>();
     }
 
     @Override
@@ -29,14 +32,14 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
         if(map.containsKey(key)) {
             throw new DuplicateKeyException("A value with key " + key + " already exist");
         }
-        map.put(key, Serializer.toByteArray(value));
+        map.put(key, byteObjectSerializer.encode(value));
         dbLogger.logInsert(value);
     }
 
     @Override
     public void upsert(V value) {
         K key = value.getKey();
-        map.put(key, Serializer.toByteArray(value));
+        map.put(key, byteObjectSerializer.encode(value));
         dbLogger.logUpsert(value);
     }
 
@@ -55,7 +58,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
         if(!map.containsKey(key)) {
             throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
         }
-        map.put(key, Serializer.toByteArray(value));
+        map.put(key, byteObjectSerializer.encode(value));
         dbLogger.logUpdate(value);
     }
 
@@ -67,12 +70,12 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public Stream<V> streamAllValues(Class<V> classz) throws NDatabaseException {
-        return map.values().stream().map(bytes -> Serializer.deserialize(bytes, classz));
+        return map.values().stream().map(bytes -> byteObjectSerializer.decode(bytes, classz));
     }
 
     @Override
     public V get(K key, Class<V> classz) throws NDatabaseException {
-        V value = Serializer.deserialize(map.get(key), classz);
+        V value = byteObjectSerializer.decode(map.get(key), classz);
         dbLogger.logGet(value);
         return value;
     }
@@ -80,7 +83,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
     @Override
     public Optional<V> findOne(Predicate<V> predicate, Class<V> classz) throws NDatabaseException {
         return map.values().stream()
-                .map(bytes -> Serializer.deserialize(bytes, classz))
+                .map(bytes -> byteObjectSerializer.decode(bytes, classz))
                 .filter(predicate)
                 .findFirst();
     }
@@ -88,7 +91,7 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
     @Override
     public List<V> find(Predicate<V> predicate, Class<V> classz) throws NDatabaseException {
         return map.values().stream()
-                .map(bytes -> Serializer.deserialize(bytes, classz))
+                .map(bytes -> byteObjectSerializer.decode(bytes, classz))
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
