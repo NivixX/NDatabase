@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +30,8 @@ public class ResultPromiseTest {
 
     @Mock
     private Consumer<String> noExceptionHandleCallbackMock;
+    @Mock
+    private Consumer<String> noExceptionHandleCallbackMock2;
 
     private CompletableFuture<String> dbOperation;
 
@@ -38,7 +41,7 @@ public class ResultPromiseTest {
 
     @Before
     public void init() {
-        dbLogger = new AppDBLogger(true);
+        dbLogger = Mockito.mock(DBLogger.class);
         asyncThreadPool = new AsyncThreadPool(3);
         syncExecutor = new AppSyncExecutor();
         dbOperation = new CompletableFuture<>();
@@ -109,6 +112,17 @@ public class ResultPromiseTest {
         awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock));
     }
 
+    @Test
+    public void callPromiseTwice_refuseSecondCall() {
+        Promise.AsyncResult<String> promise = new PromiseResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
+        promise.thenAsync(noExceptionHandleCallbackMock);
+        promise.thenAsync(noExceptionHandleCallbackMock2);
+        dbOperation.complete("DB_VALUE");
+        awaitResult(() -> verify(noExceptionHandleCallbackMock, times(1)).accept(any(String.class)));
+        awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock2));
+        awaitResult(() -> verify(dbLogger, times(1)).logWarn(any(String.class)));
+    }
+
 
     private void awaitResult(Runnable runnable) {
         Awaitility.await()
@@ -119,6 +133,7 @@ public class ResultPromiseTest {
                         runnable.run();
                         return true;
                     } catch (AssertionError ae) {
+                        ae.printStackTrace();
                         return false;
                     }
                 });

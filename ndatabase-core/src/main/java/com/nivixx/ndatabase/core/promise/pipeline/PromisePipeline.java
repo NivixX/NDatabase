@@ -17,8 +17,8 @@ public abstract class PromisePipeline<P extends PromiseCallback, E>  {
 
     protected AtomicReference<P> promiseCallbackRef;
 
-    // TODO From where this promise has been called TODO
-    private StackTraceElement stackTraceElementCaller;
+    // From where this promise has been called
+    protected StackTraceElement stackTraceElementCaller;
 
     public PromisePipeline(CompletableFuture<E> databaseResultFuture,
                            SyncExecutor syncExecutor,
@@ -38,6 +38,7 @@ public abstract class PromisePipeline<P extends PromiseCallback, E>  {
                     " the async result as already been consumed", stackTraceElement.toString()));
             return;
         }
+        stackTraceElementCaller = Thread.currentThread().getStackTrace()[3];
         this.promiseCallbackRef.set(promiseCallback);
         handleDatabasePromise();
     }
