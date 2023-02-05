@@ -120,7 +120,7 @@ allprojects {
     }
 }
 dependencies {
-        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.1.2'
+        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.1.4'
 }
 ```
 Maven
@@ -135,7 +135,7 @@ Maven
 <dependency>
     <groupId>com.github.NivixX.NDatabase</groupId>
     <artifactId>ndatabase-api</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.4</version>
 </dependency>
 ```
 

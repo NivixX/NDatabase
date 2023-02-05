@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.internal.matchers.Null;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -30,6 +31,8 @@ public class EmptyResultPromiseTest {
 
     @Mock
     private Runnable noExceptionHandleCallbackMock;
+    @Mock
+    private Runnable noExceptionHandleCallbackMock2;
 
     @Mock
     private Consumer<Throwable> exceptionHandleCallbackMock;
@@ -42,7 +45,7 @@ public class EmptyResultPromiseTest {
 
     @Before
     public void init() {
-        dbLogger = new AppDBLogger(true);
+        dbLogger = Mockito.mock(DBLogger.class);
         syncExecutor = new AppSyncExecutor();
         asyncThreadPool = new AsyncThreadPool(3);
         dbOperation = new CompletableFuture<>();
@@ -80,7 +83,6 @@ public class EmptyResultPromiseTest {
         awaitResult(() -> verify(noExceptionHandleCallbackMock, times(1)).run());
     }
 
-
     @Test
     public void operationException_thenSync_callBackWithExceptionHandling() {
         Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
@@ -113,6 +115,17 @@ public class EmptyResultPromiseTest {
         awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock));
     }
 
+
+    @Test
+    public void callPromiseTwice_refuseSecondCall() {
+        Promise.AsyncEmptyResult promise = new PromiseEmptyResultPipeline<>(dbOperation, syncExecutor, asyncThreadPool, dbLogger);
+        promise.thenAsync(noExceptionHandleCallbackMock);
+        promise.thenAsync(noExceptionHandleCallbackMock2);
+        dbOperation.complete(null);
+        awaitResult(() -> verify(noExceptionHandleCallbackMock, times(1)).run());
+        awaitResult(() -> verifyZeroInteractions(noExceptionHandleCallbackMock2));
+        awaitResult(() -> verify(dbLogger, times(1)).logWarn(any(String.class)));
+    }
 
     private void awaitResult(Runnable runnable) {
         Awaitility.await()

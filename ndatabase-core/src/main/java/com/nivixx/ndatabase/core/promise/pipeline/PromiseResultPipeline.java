@@ -70,12 +70,13 @@ public class PromiseResultPipeline<P extends PromiseResultCallback<E>, E> extend
 
     @Override
     protected void handleDatabaseException(P bukkitCallback, Throwable e) {
-        if(bukkitCallback.isProvidedExceptionHandler()) {
+        if(!bukkitCallback.isProvidedExceptionHandler()) {
             dbLogger.logWarn(
                     String.format("Async database result promise ended with an" +
                             " exception and you didn't handled the exception, error message: '%s'." +
                             "If you want to handle the exception, you can use the " +
-                            "then or thenAsync((entity, throwable) -> ) method.", e.getMessage()));
+                            "then or thenAsync((entity, throwable) -> ) method. location: %s",
+                            e.getMessage(), stackTraceElementCaller.toString()));
             return;
         }
         if(bukkitCallback.isAsync()) {

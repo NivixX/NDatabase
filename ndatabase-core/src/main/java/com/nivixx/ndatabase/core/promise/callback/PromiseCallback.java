@@ -15,6 +15,6 @@ public abstract class PromiseCallback {
     }
 
     public boolean isProvidedExceptionHandler() {
-        return !isProvidedExceptionHandler;
+        return isProvidedExceptionHandler;
     }
 }
