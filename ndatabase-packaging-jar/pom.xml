@@ -7,34 +7,43 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase</artifactId>
-        <version>0.1.4-SNAPSHOT</version>
+        <version>0.1.5-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>ndatabase-packaging-jar</artifactId>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.5-SNAPSHOT</version>
 
 
     <build>
         <finalName>NDatabase</finalName>
         <plugins>
+
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <finalName>NDatabase</finalName>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>com.nivixx.ndatabase.shaded.com.google</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                        </filter>
+                    </filters>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -42,17 +51,17 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-core</artifactId>
-            <version>0.1.4-SNAPSHOT</version>
+            <version>0.1.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>app-platform</artifactId>
-            <version>0.1.4-SNAPSHOT</version>
+            <version>0.1.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>bukkit-platform</artifactId>
-            <version>0.1.4-SNAPSHOT</version>
+            <version>0.1.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

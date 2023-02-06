@@ -7,23 +7,23 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase-platforms</artifactId>
-        <version>0.1.4-SNAPSHOT</version>
+        <version>0.1.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>bukkit-platform</artifactId>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.13-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-core</artifactId>
-            <version>0.1.4-SNAPSHOT</version>
+            <version>0.1.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
     

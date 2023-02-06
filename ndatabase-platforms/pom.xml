@@ -5,9 +5,9 @@
     <parent>
         <artifactId>ndatabase</artifactId>
         <groupId>com.nivixx</groupId>
-        <version>0.1.4-SNAPSHOT</version>
+        <version>0.1.5-SNAPSHOT</version>
     </parent>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,7 +21,6 @@
     <modules>
         <module>core-platform</module>
         <module>bukkit-platform</module>
-        <module>sponge-platform</module>
         <module>app-platform</module>
     </modules>
 
