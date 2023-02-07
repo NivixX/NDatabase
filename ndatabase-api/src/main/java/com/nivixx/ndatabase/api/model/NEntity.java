@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class NEntity<K> {
 
-    //TODO @JsonIgnore // Don't store the id twice (in the K-V value)
     @JsonProperty("key")
-    protected /*transient*/ K key;
+    protected K key;
 
     public NEntity() {
     }
@@ -22,6 +21,5 @@ public abstract class NEntity<K> {
     public void setKey(K key) {
         this.key = key;
     }
-
 
 }

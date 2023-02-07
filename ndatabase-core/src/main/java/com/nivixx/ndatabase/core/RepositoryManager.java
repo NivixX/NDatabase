@@ -65,9 +65,16 @@ public class RepositoryManager<K,V extends NEntity<K>> {
 
     @SuppressWarnings("unchecked")
     public Class<K> resolveKeyFromEntity(V nEntity) {
-        ParameterizedType genericSuperclass = (ParameterizedType) nEntity.getClass().getGenericSuperclass();
-        Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
-        return (Class<K>) actualTypeArgument;
+        try {
+            ParameterizedType genericSuperclass = (ParameterizedType) nEntity.getClass().getGenericSuperclass();
+            Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
+            return (Class<K>) actualTypeArgument;
+        } catch (Exception e) {
+            throw new DatabaseCreationException(
+                    String.format("could not resolve the key type for NEntity class '%s'." +
+                                    " Did you properly used a supported key type ?",
+                            nEntity.getClass().getCanonicalName()), e);
+        }
     }
 
 }

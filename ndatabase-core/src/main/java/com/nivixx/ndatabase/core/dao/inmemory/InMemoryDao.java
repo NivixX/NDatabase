@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     private Map<K, byte[]> map;
-    private NEntityEncoder<V, byte[]> byteObjectSerializer;
+    private final NEntityEncoder<V, byte[]> byteObjectSerializer;
 
     public InMemoryDao(String collectionName, String schema, Class<K> keyType, DBLogger dbLogger)  {
         super(collectionName, schema, keyType, dbLogger);

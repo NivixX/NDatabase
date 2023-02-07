@@ -1,22 +1,16 @@
 package com.nivixx.ndatabase.core;
 
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-import com.google.inject.util.Types;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
-import com.nivixx.ndatabase.core.dao.mysql.MysqlConnectionPool;
+import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlDao;
-import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class DatabaseTypeResolver {
 
@@ -30,7 +24,7 @@ public class DatabaseTypeResolver {
             case IN_MEMORY:
                 return new InMemoryDao<>(nTable.name(), nTable.schema(), keyType, dbLogger);
             case MYSQL:
-                MysqlConnectionPool jdbcConnectionPool = Injector.resolveInstance(MysqlConnectionPool.class);
+                HikariConnectionPool jdbcConnectionPool = Injector.resolveInstance(HikariConnectionPool.class);
                 return new MysqlDao<>(
                         nTable.name(),
                         nTable.schema(),
@@ -45,7 +39,6 @@ public class DatabaseTypeResolver {
     private <K,V extends NEntity<K>> NTable extractNTable(V nEntity) {
         Annotation[] annotations = nEntity.getClass().getAnnotations();
         for (Annotation annotation : annotations) {
-            Class<? extends Annotation> type = annotation.annotationType();
             if(annotation instanceof NTable) {
                 return (NTable) annotation;
             }

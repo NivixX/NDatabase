@@ -20,7 +20,7 @@ import java.util.stream.StreamSupport;
 
 public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
-    private final MysqlConnectionPool pool;
+    private final HikariConnectionPool pool;
     private final String DATA_IDENTIFIER = "data";
     private final String DATA_KEY_IDENTIFIER = "data_key";
 
@@ -29,7 +29,7 @@ public class MysqlDao <K, V extends NEntity<K>> extends Dao<K, V> {
 
     public MysqlDao(String collectionName,
                     String schema, Class<K> keyType,
-                    MysqlConnectionPool connectionPoolManager,
+                    HikariConnectionPool connectionPoolManager,
                     DBLogger dbLogger) {
         super(collectionName, schema, keyType, dbLogger);
         this.pool = connectionPoolManager;

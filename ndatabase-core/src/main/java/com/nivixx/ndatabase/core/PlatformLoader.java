@@ -3,23 +3,17 @@ package com.nivixx.ndatabase.core;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
-import com.google.inject.util.Types;
 import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
-import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
-import com.nivixx.ndatabase.core.dao.mysql.MysqlConnectionPool;
+import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
-import com.nivixx.ndatabase.core.serialization.BytesNEntityEncoder;
-import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 
 public abstract class PlatformLoader extends AbstractModule  {
 
@@ -30,7 +24,7 @@ public abstract class PlatformLoader extends AbstractModule  {
         NDatabaseConfig nDatabaseConfig = supplyNDatabaseConfig();
         nDatabaseConfig.verifyConfig();
         if(nDatabaseConfig.getDatabaseType() == DatabaseType.MYSQL) {
-            bind(MysqlConnectionPool.class).toInstance(new MysqlConnectionPool(nDatabaseConfig.getMysqlConfig()));
+            bind(HikariConnectionPool.class).toInstance(new HikariConnectionPool(nDatabaseConfig.getMysqlConfig()));
         }
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 

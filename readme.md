@@ -3,6 +3,7 @@
   <br> <br>
   <a href="https://www.codacy.com/gh/NivixX/NDatabase/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NDatabase/NivixX&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/521e578f30d64d7d9e4d4eb30057c086"/></a>
   <a><img alt="Issues" src="https://img.shields.io/github/issues/NivixX/NDatabase"></a>
+  <a><img alt="Closed issues" src="https://img.shields.io/github/issues-closed/NivixX/NDatabase"></a>
   <a><img alt="Forks" src="https://img.shields.io/github/forks/NivixX/NDatabase"></a>
   <a><img alt="Stars" src="https://img.shields.io/github/stars/NivixX/NDatabase"></a>
   <a><img alt="jitpack" src="https://jitpack.io/v/NivixX/NDatabase.svg"></a>
@@ -10,7 +11,7 @@
   <a><img alt="Authors" src="https://img.shields.io/badge/Authors-NivixX-blue"></a>  
 </p>
 
-# NDatabase (WIP)
+# NDatabase 
 NDatabase is a lightweight and easy to use
 [key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) style database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Bukkit / Spigot servers).
 It can be used as a plugin so you can install it once and use it everywhere without having to configure a database and duplicate connection pool each time you develop a new plugin. The API provide a fluent way to handle Async data fetch and server
@@ -31,6 +32,21 @@ Your repository is now ready, and you can now use it for operations such as inse
 Here is an overview about how it works and how can it be used with multiple plugins.
 
 <img src="https://i.imgur.com/K6Q1lBo.jpg" alt="drawing" height="240"/>
+
+
+## Should you use a key-value store ?
+
+A key-value store works similary to a __**Map**__, you can store your data object given a key and access your data directly O(1) with the key. 
+
+Using a key-value store have some pros and cons, so depending on your projects you would prefer using a key-value store over a traditional relational database and vice-versa.
+
+**The biggest advantage** of using NDatabase is the **fast development rapidity**. You basicaly just have to create a class which extends `NEntity` and you're done with your database management. In my own server, I had to create a lot of new plugins in a very short time,
+spending time to configure and setup a relational database always took me a big portion of the time, so that's why I decided to create this project for my own server and share it.
+
+**The biggest disadvantage** of using a key-value store is that your value data is not indexed, which mean you cannot query your database in an efficient way if you have to rely on your data's fields. 
+However NDatabase currently expose an API to query your database using `Predicate`, It's currently not efficient if you have a large dataset, but I'm planning to add field's index through MongoDB and compile the Predicate expression into an actual string query (still in research).
+
+Thus the choice of using a key-value store depends on if you do need more complex queries in your plugins. Note that in the case where you really need to index a specific field, you can still create another key-value store and use the field's value as key.
 
 ### Fluent async to sync API
 As you may know, a minecraft server has a __*main thread*__ which handle the logic game tick and synchronisation, the server can tick up to 20 times per seconds (50 ms per tick) which mean, if you are doing heavy process in the main thread and it lead the server to take more than 50 ms to tick, your server will __*lag*__ and tick less often.
@@ -112,7 +128,9 @@ database:
 Once the NDatabase plugin is running on your server, you are good to go and you can use the API in any of your plugins without reconfiguring a database.
 
 ### Add dependency to your project
-Gradle
+<details>
+<summary>Show Gradle</summary>
+
 ```
 allprojects {
     repositories {
@@ -121,10 +139,16 @@ allprojects {
     }
 }
 dependencies {
-        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.1.4'
+        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.2.0'
 }
 ```
-Maven
+
+</details>
+
+
+<details>
+<summary>Show Maven</summary>
+
 ```
 <repositories>
     <repository>
@@ -136,13 +160,15 @@ Maven
 <dependency>
     <groupId>com.github.NivixX.NDatabase</groupId>
     <artifactId>ndatabase-api</artifactId>
-    <version>0.1.4</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
+</details>
+
 ### Define your data model
 
-First let's define our data model, you just have to create a class which extends `NEntity\<K>` where K is the type of your key, currently UUID, String, Long, Integer types are supported.
+First let's define our data model, you just have to create a class which extends `NEntity<K>` where K is the type of your key, currently UUID, String, Long, Integer types are supported.
 ```java
 @NTable(name = "player_statistics", schema = "", catalog = "")
 public class PlayerStatsDTO extends NEntity<UUID> {
@@ -210,7 +236,7 @@ repository.getAsync(player.getUUID())
         });
 ```
 
-## Build fat jar or API
+## Build jar or API
 `mvn clean install -DSkipTests`
 
 It will create the complete jar in `ndatabase-packaging-jar/target` and the API in `ndatabase-api/target`
