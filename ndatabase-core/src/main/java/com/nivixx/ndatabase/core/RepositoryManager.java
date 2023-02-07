@@ -9,8 +9,8 @@ import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +65,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
 
     @SuppressWarnings("unchecked")
     public Class<K> resolveKeyFromEntity(V nEntity) {
-        ParameterizedTypeImpl genericSuperclass = (ParameterizedTypeImpl) nEntity.getClass().getGenericSuperclass();
+        ParameterizedType genericSuperclass = (ParameterizedType) nEntity.getClass().getGenericSuperclass();
         Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
         return (Class<K>) actualTypeArgument;
     }
