@@ -139,7 +139,7 @@ allprojects {
     }
 }
 dependencies {
-        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.2.0'
+        implementation 'com.github.NivixX.NDatabase:ndatabase-api:0.3.0'
 }
 ```
 
@@ -160,7 +160,7 @@ dependencies {
 <dependency>
     <groupId>com.github.NivixX.NDatabase</groupId>
     <artifactId>ndatabase-api</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
