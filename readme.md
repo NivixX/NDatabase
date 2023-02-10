@@ -15,12 +15,12 @@
 NDatabase is a lightweight and easy to use
 [key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) style database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Bukkit / Spigot servers).
 It can be used as a plugin so you can install it once and use it everywhere without having to configure a database and duplicate connection pool each time you develop a new plugin. The API provide a fluent way to handle Async data fetch and server
-main thread callback with [async to sync](#async-to-sync) mechanism. NDatabase can support multiple databases (currently MySQL and In-memory implementation).
+main thread callback with [async to sync](#fluent-async-to-sync-API) mechanism. NDatabase can support multiple databases (currently MySQL, SQLite, and In-memory implementation).
 NDatabase can support java 8 from 18 and higher and all minecraft server version (tested from 1.8 to 1.19+).
 
 
 ## How does it work & API usage
-If you want to use NDatabase for your minecraft server, you can install it as a plugin easily, see [installation & quickstart](#async-to-sync).
+If you want to use NDatabase for your minecraft server, you can install it as a plugin easily, see [installation & quickstart](#installation-quickstart-usage).
 When NDatabase is running on your server, Creating the schema and repository for your data model is very easy, you can actually do that with one line of code.
 
 
@@ -86,9 +86,9 @@ playerRepository.getAsync(joinedPlayer.getUUID())
 * **Full async**: in the second example, we retrieve the data of a player who just connected to the server asynchronously and consume this data in the same async thread, because we don't necessarily have to do bukkit operation but just cache some informations, so all this can be done of the main thread. Keep in mind that you should use concurrent collections to avoid getting `ConcurrentModificationException`
 
 
-## Installation & QuickStart usage
+## Installation QuickStart usage
 ### Run the NDatabase plugin (Bukkit / Spigot)
-1. Put the NDatabase plugin in your `/plugins` folder. You can build the jar yourself or download the latest release HERE
+1. Put the NDatabase plugin in your `/plugins` folder. You can build the jar yourself or download the latest release [HERE](https://github.com/NivixX/NDatabase/releases)
 2. (Optional) start your server and edit your `/plugins/NDatabase/config.yml` as your needs and what database your are using. By default, the configuration is set to a `IN_MEMORY` implementation, so this is very useful if you want to develop your plugin without deploying a database.
 <details>
   <summary>Show config file</summary>
@@ -245,5 +245,8 @@ It will create the complete jar in `ndatabase-packaging-jar/target` and the API 
 WIP
 ### Future objectives
 WIP
+- index MYSQL json document fields with `GENERATED COLUMNS`
+- mongodb support & index field
+- find((predicate)) parse predicate into a query that use index using bytecode manipulation
 #### Built in mappers & automapped object wrapper
 WIP

@@ -12,8 +12,8 @@ import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 public abstract class AppPlatformLoader extends PlatformLoader {
 
     @Override
-    public DBLogger supplyDbLogger(NDatabaseConfig nDatabaseConfig) {
-        return new AppDBLogger(nDatabaseConfig.isDebugMode());
+    public DBLogger supplyDbLogger(boolean isDebugMode) {
+        return new AppDBLogger(isDebugMode);
     }
 
     public abstract SyncExecutor supplySyncExecutor();

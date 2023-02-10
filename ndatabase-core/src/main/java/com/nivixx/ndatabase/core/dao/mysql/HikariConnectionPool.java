@@ -1,13 +1,14 @@
 package com.nivixx.ndatabase.core.dao.mysql;
 
 import com.nivixx.ndatabase.core.config.MysqlConfig;
+import com.nivixx.ndatabase.core.dao.jdbc.JdbcConnectionPool;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class HikariConnectionPool {
+public class HikariConnectionPool implements JdbcConnectionPool {
 
     private final MysqlConfig mysqlConfig;
     private HikariDataSource dataSource;
@@ -30,6 +31,7 @@ public class HikariConnectionPool {
         dataSource = new HikariDataSource(config);
     }
 
+    @Override
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }

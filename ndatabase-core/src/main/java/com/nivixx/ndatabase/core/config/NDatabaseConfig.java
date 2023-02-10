@@ -6,6 +6,7 @@ public class NDatabaseConfig {
 
     protected DatabaseType databaseType = DatabaseType.IN_MEMORY;
     protected MysqlConfig mysqlConfig;
+    protected SqliteConfig sqliteConfig;
     protected boolean isDebugMode = false;
     protected int idleThreadPoolSize = 1;
 
@@ -43,6 +44,14 @@ public class NDatabaseConfig {
 
     public void setMysqlConfig(MysqlConfig mysqlConfig) {
         this.mysqlConfig = mysqlConfig;
+    }
+
+    public SqliteConfig getSqliteConfig() {
+        return sqliteConfig;
+    }
+
+    public void setSqliteConfig(SqliteConfig sqliteConfig) {
+        this.sqliteConfig = sqliteConfig;
     }
 
     public int getIdleThreadPoolSize() {

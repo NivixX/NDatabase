@@ -1,5 +1,6 @@
 # Your database type
 # - IN_MEMORY (default)
+# - SQLITE
 # - MYSQL
 database-type: IN_MEMORY
 
@@ -31,3 +32,7 @@ database:
 
     # Maximum number of connection in the pool
     maximum-pool-size: 10
+  sqlite:
+
+    # File generated in your plugins/NDatabase/sqlite folder that will contain your database
+    file-name: 'ndatabase.sqlite'
