@@ -9,6 +9,7 @@ import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
+import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
@@ -23,12 +24,16 @@ public abstract class PlatformLoader extends AbstractModule  {
 
         NDatabaseConfig nDatabaseConfig = supplyNDatabaseConfig();
         nDatabaseConfig.verifyConfig();
+        DBLogger dbLogger = supplyDbLogger(nDatabaseConfig.isDebugMode());
+        bind(DBLogger.class).toInstance(dbLogger);
         if(nDatabaseConfig.getDatabaseType() == DatabaseType.MYSQL) {
             bind(HikariConnectionPool.class).toInstance(new HikariConnectionPool(nDatabaseConfig.getMysqlConfig()));
         }
+        if(nDatabaseConfig.getDatabaseType() == DatabaseType.SQLITE) {
+            bind(SqliteConnectionPool.class).toInstance(new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger));
+        }
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 
-        bind(DBLogger.class).toInstance(supplyDbLogger(nDatabaseConfig));
         bind(AsyncThreadPool.class).toInstance(new AsyncThreadPool(nDatabaseConfig.getIdleThreadPoolSize()));
         bind(NDatabaseAPI.class).to(NDatabaseAPIImpl.class);
     }
@@ -54,7 +59,7 @@ public abstract class PlatformLoader extends AbstractModule  {
         method.invoke(null, injector.getInstance(NDatabaseAPI.class));
     }
 
-    protected abstract DBLogger supplyDbLogger(NDatabaseConfig nDatabaseConfig);
+    protected abstract DBLogger supplyDbLogger(boolean isDebugMode);
     protected abstract SyncExecutor supplySyncExecutor();
     protected abstract NDatabaseConfig supplyNDatabaseConfig();
 }

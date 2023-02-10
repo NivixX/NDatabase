@@ -7,20 +7,23 @@ import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.MysqlConfig;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
+import com.nivixx.ndatabase.core.config.SqliteConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MySqlRepositoryTest extends AbstractRepositoryTest {
-    public MySqlRepositoryTest() {
+public class SqliteRepositoryTest extends AbstractRepositoryTest {
+    public SqliteRepositoryTest() {
     }
 
     @Before
@@ -37,19 +40,21 @@ public class MySqlRepositoryTest extends AbstractRepositoryTest {
             @Override
             public NDatabaseConfig supplyNDatabaseConfig() {
                 AppNDatabaseConfig bukkitNDatabaseConfig = new AppNDatabaseConfig();
-                MysqlConfig mysqlConfig = new MysqlConfig();
-                mysqlConfig.setHost(jdbcURL);
-                mysqlConfig.setClassName("org.h2.Driver");
-                mysqlConfig.setDatabaseName("");
-                mysqlConfig.setPass("");
-                mysqlConfig.setUser("");
-                bukkitNDatabaseConfig.setDatabaseType(DatabaseType.MYSQL);
-                bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
+                SqliteConfig sqliteConfig = new SqliteConfig();
+                sqliteConfig.setFileFullPath("src/test/resources/testsqlite.sqlite");
+                bukkitNDatabaseConfig.setDatabaseType(DatabaseType.SQLITE);
+                bukkitNDatabaseConfig.setSqliteConfig(sqliteConfig);
                 return bukkitNDatabaseConfig;
             }
         };
+        File dbFile = new File("src/test/resources/testsqlite.sqlite");
+        dbFile.deleteOnExit();
         appPlatformLoader.load();
         repository = NDatabase.api().getOrCreateRepository(PlayerEntity.class);
+    }
+
+    @AfterClass
+    public static void removeSqliteFile() {
     }
 
     @Test(expected = NDatabaseException.class)

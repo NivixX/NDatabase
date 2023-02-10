@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ndatabase</artifactId>
         <groupId>com.nivixx</groupId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +16,45 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <build>
+        <resources>
+            <!-- include source code in the jar for documentation -->
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+            </resource>
+        </resources>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>org.*</exclude>
+                            <exclude>com.google.*</exclude>
+                            <exclude>com.zaxxer.*</exclude>
+                            <exclude>META-INF/maven/**</exclude>
+                        </excludes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                        </filter>
+                    </filters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -23,5 +62,6 @@
             <version>2.14.2</version>
         </dependency>
     </dependencies>
+
 
 </project>

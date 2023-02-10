@@ -15,6 +15,7 @@ public class AppDBLogger extends DBLogger {
 
     @Override
     public Consumer<Supplier<String>> consumeDebugMessage() {
+        if(!isDebugMode) return (msg) -> {};
         return (msg) -> System.out.println(msg.get());
     }
 

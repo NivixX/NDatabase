@@ -7,7 +7,10 @@ import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
+import com.nivixx.ndatabase.core.dao.jdbc.JdbcDao;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlDao;
+import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
+import com.nivixx.ndatabase.core.dao.sqlite.SqliteDao;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.annotation.Annotation;
@@ -24,12 +27,20 @@ public class DatabaseTypeResolver {
             case IN_MEMORY:
                 return new InMemoryDao<>(nTable.name(), nTable.schema(), keyType, dbLogger);
             case MYSQL:
-                HikariConnectionPool jdbcConnectionPool = Injector.resolveInstance(HikariConnectionPool.class);
+                HikariConnectionPool hikariConnectionPool = Injector.resolveInstance(HikariConnectionPool.class);
                 return new MysqlDao<>(
                         nTable.name(),
                         nTable.schema(),
                         keyType,
-                        jdbcConnectionPool,
+                        hikariConnectionPool,
+                        dbLogger);
+            case SQLITE:
+                SqliteConnectionPool sqliteConnectionPool = Injector.resolveInstance(SqliteConnectionPool.class);
+                return new SqliteDao<>(
+                        nTable.name(),
+                        nTable.schema(),
+                        keyType,
+                        sqliteConnectionPool,
                         dbLogger);
             default:
                 throw new DatabaseCreationException("Database type has not been provided in the config");

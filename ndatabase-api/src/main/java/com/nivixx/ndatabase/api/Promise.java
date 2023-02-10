@@ -29,12 +29,12 @@ public interface Promise {
          * retrieve data async and consume it in the same async thread once it's available.
          * This method doesn't handle exception, so if an Exception occurred during
          * the data retrieving, your consumer will be ignored and won't be called.
-         * <pre>
+         * <pre>{@code
          *     .thenAsync((entity) -> {
          *         // handle entity
          *         // will not be called if an exception occurred
          *     })
-         * </pre>
+         * }</pre>
          * Note that if an exception occurred NDatabase with handle and log a warning message for you
          * telling that you didn't handle the exception and the code line will be specified.
          *
@@ -48,12 +48,12 @@ public interface Promise {
          * retrieve data async and consume it in the main thread once it's available.
          * This method doesn't handle exception, so if an Exception occurred during
          * the data retrieving, your consumer will be ignored and won't be called.
-         * <pre>
+         * <pre>{@code
          *     .thenSync((entity) -> {
          *         // handle entity
          *         // will not be called if an exception occurred
          *     })
-         * </pre>
+         * }</pre>
          * Note that if an exception occurred NDatabase with handle and log a warning message for you
          * telling that you didn't handle the exception and the code line will be specified.
          *
@@ -68,7 +68,7 @@ public interface Promise {
          * This method handle exception if an exception occurred.
          * In case where the task ended exceptionally, E value will be null and Throwable
          * will contain your exception.
-         * <pre>
+         * <pre>{@code
          *     .thenAsync((entity, throwable) -> {
          *         if(throwable != null) {
          *             // Handle exception
@@ -76,7 +76,7 @@ public interface Promise {
          *         }
          *         // handle entity
          *     })
-         * </pre>
+         * }</pre>
          * @param valueConsumer your entity, exception value consumer.
          *                      E will be null if no result was found
          */
@@ -87,7 +87,7 @@ public interface Promise {
          * This method handle exception if an exception occurred.
          * In case where the task ended exceptionally, E value will be null and Throwable
          * will contain your exception.
-         * <pre>
+         * <pre>{@code
          *     .thenSync((entity, throwable) -> {
          *         if(throwable != null) {
          *             // Handle exception
@@ -95,7 +95,7 @@ public interface Promise {
          *         }
          *         // handle entity
          *     })
-         * </pre>
+         * }</pre>
          * @param valueConsumer your entity, exception value consumer.
          *                      E will be null if no result was found
          */
@@ -116,12 +116,12 @@ public interface Promise {
          * process your database operation async and run a callback in the same async thread when finished
          * This method doesn't handle exception, so if an Exception occurred during
          * the operation, your callback will be ignored and won't be called.
-         * <pre>
+         * <pre>{@code
          *     .thenAsync(() -> {
          *         // execute callback
          *         // will not be called if an exception occurred
          *     })
-         * </pre>
+         * }</pre>
          * Note that if an exception occurred NDatabase with handle and log a warning message for you
          * telling that you didn't handle the exception and the code line will be specified.
          *
@@ -133,12 +133,12 @@ public interface Promise {
          * process your database operation async and run a callback in the main thread when finished
          * This method doesn't handle exception, so if an Exception occurred during
          * the operation, your callback will be ignored and won't be called.
-         * <pre>
+         * <pre>{@code
          *     .thenAsync(() -> {
          *         // execute callback
          *         // will not be called if an exception occurred
          *     })
-         * </pre>
+         * }</pre>
          * Note that if an exception occurred NDatabase with handle and log a warning message for you
          * telling that you didn't handle the exception and the code line will be specified.
          *
@@ -149,7 +149,7 @@ public interface Promise {
         /**
          * process your database operation async and run a callback in the same async thread when finished
          * This method handle exception if an exception occurred.
-         * <pre>
+         * <pre>{@code
          *     .thenAsync((throwable) -> {
          *         if(throwable != null) {
          *             // handle exception
@@ -157,7 +157,7 @@ public interface Promise {
          *         }
          *         // execute callback
          *     })
-         * </pre>
+         * }</pre>
          * @param throwableConsumer throwable consumer.
          *                          will be null if no exception occurred
          */
@@ -166,7 +166,7 @@ public interface Promise {
         /**
          * process your database operation async and run a callback in the main thread when finished
          * This method handle exception if an exception occurred.
-         * <pre>
+         * <pre>{@code
          *     .thenSync((throwable) -> {
          *         if(throwable != null) {
          *             // handle exception
@@ -174,7 +174,7 @@ public interface Promise {
          *         }
          *         // execute callback
          *     })
-         * </pre>
+         * }</pre>
          * @param throwableConsumer throwable consumer.
          *                          will be null if no exception occurred
          */
