@@ -1,5 +1,6 @@
 package com.nivixx.ndatabase.core.dao.sqlite;
 
+import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.core.config.SqliteConfig;
 import com.nivixx.ndatabase.core.dao.jdbc.JdbcConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
@@ -30,8 +31,7 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            dbLogger.logError(e, "Failed to find sqlite driver, verify the sqlite driver is present in your java execution environment");
-            return null;
+            throw new DatabaseCreationException("Failed to find sqlite driver, verify the sqlite driver is present in your java execution environment", e);
         }
         File dataFolder = new File(sqliteConfig.getFileFullPath());
         if (!dataFolder.exists()) {
@@ -39,12 +39,8 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
                 dataFolder.createNewFile();
             } catch (IOException e) {
                 String msg = String.format("Failed to read/create sqlite file '%s'", sqliteConfig.getFileFullPath());
-                dbLogger.logError(e, msg);
+                throw new DatabaseCreationException(msg, e);
             }
-        }
-
-        if(connection!=null&&!connection.isClosed()){
-            return connection;
         }
         connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
         return connection;

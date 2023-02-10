@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +28,7 @@ public class SqliteRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Before
-    public void initApp() throws NDatabaseLoadException, SQLException {
+    public void initApp() throws NDatabaseLoadException, SQLException, IOException {
         String jdbcURL = "jdbc:h2:mem:test;MODE=MYSQL";
         ExecutorService mainThread = Executors.newFixedThreadPool(1);
 
@@ -48,6 +49,7 @@ public class SqliteRepositoryTest extends AbstractRepositoryTest {
             }
         };
         File dbFile = new File("src/test/resources/testsqlite.sqlite");
+        dbFile.createNewFile();
         dbFile.deleteOnExit();
         appPlatformLoader.load();
         repository = NDatabase.api().getOrCreateRepository(PlayerEntity.class);
