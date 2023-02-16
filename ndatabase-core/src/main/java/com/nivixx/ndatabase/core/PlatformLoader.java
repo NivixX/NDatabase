@@ -63,7 +63,7 @@ public abstract class PlatformLoader extends AbstractModule  {
         method.invoke(null, injector.getInstance(NDatabaseAPI.class));
     }
 
-    protected abstract DBLogger supplyDbLogger(boolean isDebugMode);
-    protected abstract SyncExecutor supplySyncExecutor();
-    protected abstract NDatabaseConfig supplyNDatabaseConfig();
+    public abstract DBLogger supplyDbLogger(boolean isDebugMode);
+    public abstract SyncExecutor supplySyncExecutor();
+    public abstract NDatabaseConfig supplyNDatabaseConfig();
 }

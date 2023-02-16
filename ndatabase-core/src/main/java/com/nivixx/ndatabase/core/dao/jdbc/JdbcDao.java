@@ -222,9 +222,13 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         } finally {
             close(connection, ps, rs);
         }
-        dbLogger.logGet(dataFound);
-        if(dataFound == null) { return null; }
-        return byteObjectSerializer.decode(dataFound, classz);
+
+        V returnedValue = null;
+        if(dataFound != null) {
+            returnedValue = byteObjectSerializer.decode(dataFound, classz);
+        }
+        dbLogger.logGet(returnedValue);
+        return returnedValue;
     }
 
     @Override

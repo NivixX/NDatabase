@@ -71,6 +71,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     public void insert(V value) throws NDatabaseException {
         try {
             getCollection().insertOne(convertToDocument(value));
+            dbLogger.logInsert(value);
         } catch (MongoWriteException e) {
             throw new NDatabaseException(e);
         }
@@ -85,6 +86,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
         UpdateOptions updateOptions = new UpdateOptions();
         updateOptions.upsert(true);
         getCollection().replaceOne(getId(value.getKey()), convertToDocument(value), updateOptions);
+        dbLogger.logUpsert(value);
     }
 
     @Override
@@ -93,6 +95,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
         if(deleteResult.getDeletedCount() == 0) {
             throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
         }
+        dbLogger.logDelete(key);
     }
 
     @Override
@@ -102,6 +105,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
             if(updateResult.getModifiedCount() == 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + value.getKey() + " in the database for collection " + collectionName);
             }
+            dbLogger.logUpdate(value);
         } catch (MongoServerException e) {
             throw new NDatabaseException(e);
         }
@@ -110,6 +114,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     @Override
     public void deleteAll() throws NDatabaseException {
         getCollection().drop();
+        dbLogger.logDeleteAll();
     }
 
     @Override
@@ -134,10 +139,13 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     @Override
     public V get(K key, Class<V> classz) throws NDatabaseException {
         Document first = getCollection().find(getId(key)).first();
-        if(first == null) {
-            return null;
+
+        V returnedValue = null;
+        if(first != null) {
+            returnedValue = jsonStringObjectSerializer.decode(first.toJson(), classz);
         }
-        return jsonStringObjectSerializer.decode(first.toJson(), classz);
+        dbLogger.logGet(returnedValue);
+        return returnedValue;
     }
 
     @Override
