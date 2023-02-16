@@ -10,9 +10,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-/**
- * CRUD Low level DAO (working with serializable object)
- */
 public abstract class Dao<K, V extends NEntity<K>> {
 
     protected String collectionName;
@@ -29,6 +26,7 @@ public abstract class Dao<K, V extends NEntity<K>> {
     }
 
     public abstract void insert(V value) throws NDatabaseException;
+
     public abstract void upsert(V value) throws NDatabaseException;
 
     public abstract void delete(K key) throws NDatabaseException;

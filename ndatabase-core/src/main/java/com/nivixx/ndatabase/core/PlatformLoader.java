@@ -8,6 +8,7 @@ import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
+import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
@@ -31,6 +32,9 @@ public abstract class PlatformLoader extends AbstractModule  {
         }
         if(nDatabaseConfig.getDatabaseType() == DatabaseType.SQLITE) {
             bind(SqliteConnectionPool.class).toInstance(new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger));
+        }
+        if(nDatabaseConfig.getDatabaseType() == DatabaseType.MONGODB) {
+            bind(MongodbConnection.class).toInstance(new MongodbConnection(nDatabaseConfig.getMongoDBConfig()));
         }
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 
