@@ -6,8 +6,9 @@ import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
+import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
+import com.nivixx.ndatabase.core.dao.mongodb.MongodbDao;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
-import com.nivixx.ndatabase.core.dao.jdbc.JdbcDao;
 import com.nivixx.ndatabase.core.dao.mysql.MysqlDao;
 import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.core.dao.sqlite.SqliteDao;
@@ -42,6 +43,15 @@ public class DatabaseTypeResolver {
                         keyType,
                         sqliteConnectionPool,
                         dbLogger);
+            case MONGODB:
+                MongodbConnection mongodbConnection = Injector.resolveInstance(MongodbConnection.class);
+                return new MongodbDao<>(
+                        nTable.name(),
+                        nTable.schema(),
+                        keyType,
+                        mongodbConnection,
+                        dbLogger
+                );
             default:
                 throw new DatabaseCreationException("Database type has not been provided in the config");
         }

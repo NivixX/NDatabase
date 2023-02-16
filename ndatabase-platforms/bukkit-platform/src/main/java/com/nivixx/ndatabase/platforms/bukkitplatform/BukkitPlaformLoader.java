@@ -2,10 +2,7 @@ package com.nivixx.ndatabase.platforms.bukkitplatform;
 
 import com.nivixx.ndatabase.core.Injector;
 import com.nivixx.ndatabase.core.PlatformLoader;
-import com.nivixx.ndatabase.core.config.DatabaseType;
-import com.nivixx.ndatabase.core.config.MysqlConfig;
-import com.nivixx.ndatabase.core.config.NDatabaseConfig;
-import com.nivixx.ndatabase.core.config.SqliteConfig;
+import com.nivixx.ndatabase.core.config.*;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 import org.bukkit.configuration.ConfigurationSection;
@@ -33,8 +30,8 @@ public class BukkitPlaformLoader extends PlatformLoader {
 
         ConfigurationSection mysql = config.getConfigurationSection("database.mysql");
         MysqlConfig mysqlConfig = new MysqlConfig();
-        mysqlConfig.setHost(mysql.getString("host",""));
-        mysqlConfig.setClassName(mysql.getString("driver-class-name",""));
+        mysqlConfig.setHost(mysql.getString("host","localhost"));
+        mysqlConfig.setClassName(mysql.getString("driver-class-name","com.mysql.jdbc.Driver"));
         mysqlConfig.setMinimumIdleConnection(mysql.getInt("minimum-idle-connection",1));
         mysqlConfig.setMaximumPoolSize(mysql.getInt("maximum-pool-size", 3));
         mysqlConfig.setPort(mysql.getInt("port", 3306));
@@ -47,6 +44,19 @@ public class BukkitPlaformLoader extends PlatformLoader {
         String fileName = sqlite.getString("file-name", "ndatabase.sqlite");
         sqliteConfig.setFileFullPath(NDatabasePlugin.getInstance().getDataFolder() + "/" + fileName);
 
+        ConfigurationSection mongoDB = config.getConfigurationSection("database.mongodb");
+        MongoDBConfig mongoDBConfig = new MongoDBConfig();
+        String mongoDBHost = mongoDB.getString("host", "localhost");
+        String mongoDBDatabase = mongoDB.getString("database", "ndatabase");
+        int mongoDBPort = mongoDB.getInt("port", 27017);
+        String mongoDBUser = mongoDB.getString("user", "");
+        String mongoDBPass = mongoDB.getString("pass", "");
+        mongoDBConfig.setHost(mongoDBHost);
+        mongoDBConfig.setPort(mongoDBPort);
+        mongoDBConfig.setDatabase(mongoDBDatabase);
+        mongoDBConfig.setUser(mongoDBUser);
+        mongoDBConfig.setPass(mongoDBPass);
+
         boolean debug = config.getBoolean("debug-mode", false);
 
         BukkitNDatabaseConfig bukkitNDatabaseConfig = new BukkitNDatabaseConfig();
@@ -55,6 +65,7 @@ public class BukkitPlaformLoader extends PlatformLoader {
         bukkitNDatabaseConfig.setDatabaseType(DatabaseType.valueOf(config.getString("database-type")));
         bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
         bukkitNDatabaseConfig.setSqliteConfig(sqliteConfig);
+        bukkitNDatabaseConfig.setMongoDBConfig(mongoDBConfig);
 
         return bukkitNDatabaseConfig;
     }

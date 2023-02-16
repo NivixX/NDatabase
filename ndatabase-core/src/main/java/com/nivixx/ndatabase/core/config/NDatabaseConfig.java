@@ -5,8 +5,11 @@ import java.util.Objects;
 public class NDatabaseConfig {
 
     protected DatabaseType databaseType = DatabaseType.IN_MEMORY;
+
     protected MysqlConfig mysqlConfig;
     protected SqliteConfig sqliteConfig;
+    protected MongoDBConfig mongoDBConfig;
+
     protected boolean isDebugMode = false;
     protected int idleThreadPoolSize = 1;
 
@@ -20,6 +23,14 @@ public class NDatabaseConfig {
             Objects.requireNonNull(mysqlConfig.getUser(), "mysql user is null, check your mysql configuration");
             Objects.requireNonNull(mysqlConfig.getPass(), "mysql pass is null, check your mysql configuration");
         }
+    }
+
+    public MongoDBConfig getMongoDBConfig() {
+        return mongoDBConfig;
+    }
+
+    public void setMongoDBConfig(MongoDBConfig mongoDBConfig) {
+        this.mongoDBConfig = mongoDBConfig;
     }
 
     public boolean isDebugMode() {

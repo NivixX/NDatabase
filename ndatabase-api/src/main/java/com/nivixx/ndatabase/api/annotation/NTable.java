@@ -15,6 +15,4 @@ public @interface NTable {
     String schema() default "";
 
     int version() default 1;
-
-
 }

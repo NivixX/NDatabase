@@ -1,8 +1,9 @@
 # Your database type
-# - IN_MEMORY (default)
-# - SQLITE
+# - IN_MEMORY - clear data when shutdown, useful for testing new plugin
+# - SQLITE (default)
 # - MYSQL
-database-type: IN_MEMORY
+# - MONGODB (Recommended)
+database-type: SQLITE
 
 # Print all operations inside the database in the console with the value formatted as Json
 debug-mode: false
@@ -36,3 +37,13 @@ database:
 
     # File generated in your plugins/NDatabase/sqlite folder that will contain your database
     file-name: 'ndatabase.sqlite'
+
+  mongodb:
+
+    host: 'localhost'
+
+    # Database name
+    database: 'ndatabase'
+    port: 27017
+    user: ''
+    pass: ''

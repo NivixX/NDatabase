@@ -8,8 +8,8 @@ import java.util.UUID;
 @NTable(name = "my_table_name")
 public class PlayerEntity extends NEntity<UUID> {
 
-    private String name;
-    private int score;
+    private String name = "name";
+    private int score = 10;
 
 
     public PlayerEntity() {
