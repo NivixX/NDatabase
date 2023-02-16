@@ -43,7 +43,7 @@ database:
     host: 'localhost'
 
     # Database name
-    database: ''
+    database: 'ndatabase'
     port: 27017
     user: ''
     pass: ''
