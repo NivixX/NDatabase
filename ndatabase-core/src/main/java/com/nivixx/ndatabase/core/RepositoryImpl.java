@@ -11,10 +11,12 @@ import com.nivixx.ndatabase.core.promise.pipeline.PromiseResultPipeline;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V> {
@@ -134,6 +136,16 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
     @Override
     public Promise.AsyncResult<Stream<V>> streamAllValuesAsync() throws NDatabaseException {
         CompletableFuture<Stream<V>> future = CompletableFuture.supplyAsync(() -> dao.streamAllValues(classz));
+        return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
+    }
+
+    @Override
+    public Promise.AsyncResult<List<V>> computeTopAsync(int topMax, Comparator<V> comparator) {
+        CompletableFuture<List<V>> future = CompletableFuture.supplyAsync(() ->
+                dao.streamAllValues(classz)
+                        .sorted(comparator)
+                        .limit(topMax)
+                        .collect(Collectors.toList()));
         return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
     }
 }

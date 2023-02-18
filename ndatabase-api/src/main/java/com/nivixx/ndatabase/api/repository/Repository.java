@@ -5,9 +5,8 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.model.NEntity;
-import com.nivixx.ndatabase.api.Promise.AsyncResult;
-import com.nivixx.ndatabase.api.Promise.AsyncEmptyResult;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -230,4 +229,20 @@ public interface Repository<K, V extends NEntity<K>> {
      * in the same async thread or inside the main thread.on)
      */
     Promise.AsyncResult<Stream<V>> streamAllValuesAsync();
+
+    /**
+     * Retrieve all your entities and compute a top K
+     * given a comparator
+     * eg: .computeTopAsync(10, (o1, o2) -> o2.getScore() - o1.getScore())
+     * return top 10 entries by score
+     * return less than 10 entries if the size of the collection is lower
+     *
+     * @param topMax number of top
+     * @param comparator a comparator to sort your entities
+     * @return {@link Promise.AsyncResult} an async promise which will potentially
+     * contain a throwable if an exception occurred.
+     * By recalling this promise, you can consume the operation result either
+     * in the same async thread or inside the main thread.on)
+     */
+    Promise.AsyncResult<List<V>> computeTopAsync(int topMax, Comparator<V> comparator);
 }

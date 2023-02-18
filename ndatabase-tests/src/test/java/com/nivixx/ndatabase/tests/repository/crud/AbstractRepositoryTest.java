@@ -183,6 +183,32 @@ public abstract class AbstractRepositoryTest {
     }
 
     @Test
+    public void computeTop() {
+
+        PlayerEntity playerEntityTop1 = new PlayerEntity(UUID.randomUUID());
+        playerEntityTop1.setScore(100);
+        PlayerEntity playerEntityTop2 = new PlayerEntity(UUID.randomUUID());
+        playerEntityTop2.setScore(50);
+        PlayerEntity playerEntityTop3 = new PlayerEntity(UUID.randomUUID());
+        playerEntityTop3.setScore(20);
+        PlayerEntity playerEntityTop4 = new PlayerEntity(UUID.randomUUID());
+        playerEntityTop4.setScore(10);
+        PlayerEntity playerEntityTop5 = new PlayerEntity(UUID.randomUUID());
+        playerEntityTop5.setScore(1);
+        repository.insert(playerEntityTop1);
+        repository.insert(playerEntityTop5);
+        repository.insert(playerEntityTop2);
+        repository.insert(playerEntityTop4);
+        repository.insert(playerEntityTop3);
+
+        List<PlayerEntity> join = repository.computeTopAsync(3, (o1, o2) -> o2.getScore() - o1.getScore()).getResultFuture().join();
+
+        Assert.assertEquals(playerEntityTop1.getKey(), join.get(0).getKey());
+        Assert.assertEquals(playerEntityTop2.getKey(), join.get(1).getKey());
+        Assert.assertEquals(playerEntityTop3.getKey(), join.get(2).getKey());
+    }
+
+    @Test
     public void streamEntitiesEmpty() {
         long count = repository.streamAllValues().count();
         Assert.assertEquals(0, count);

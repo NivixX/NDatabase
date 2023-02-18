@@ -1,6 +1,6 @@
 name: NDatabase
 main: com.nivixx.ndatabase.platforms.bukkitplatform.NDatabasePlugin
-version: 0.4.1
+version: 0.5.0
 description: A lightweight centralised Key-value style database
 api-version: 1.13
 authors: [NivixX]
