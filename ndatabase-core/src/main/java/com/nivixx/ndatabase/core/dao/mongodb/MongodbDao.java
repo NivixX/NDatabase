@@ -13,6 +13,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
+import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
@@ -156,6 +157,15 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     @Override
     public List<V> find(Predicate<V> predicate, Class<V> classz) throws NDatabaseException {
         return streamAllValues(classz).filter(predicate).collect(Collectors.toList());
+    }
+
+    @Override
+    public void validateConnection() throws NDatabaseLoadException {
+        try {
+            mongodbConnection.connect();
+        } catch (Exception e) {
+            throw new NDatabaseLoadException("Failed to connect to MongoDB database", e);
+        }
     }
 
     @Override

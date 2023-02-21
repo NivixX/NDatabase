@@ -1,6 +1,7 @@
 package com.nivixx.ndatabase.core.dao.sqlite;
 
 import com.nivixx.ndatabase.core.config.SqliteConfig;
+import com.nivixx.ndatabase.core.dao.DatabaseConnection;
 import com.nivixx.ndatabase.core.dao.jdbc.JdbcConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
@@ -20,6 +21,11 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
     public SqliteConnectionPool(SqliteConfig sqliteConfig, DBLogger dbLogger) {
         this.sqliteConfig = sqliteConfig;
         this.dbLogger = dbLogger;
+    }
+
+    @Override
+    public void connect() throws Exception {
+        getConnection();
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.nivixx.ndatabase.core.dao.jdbc;
 
-import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
-import com.nivixx.ndatabase.api.exception.DatabaseException;
-import com.nivixx.ndatabase.api.exception.NDatabaseException;
-import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
+import com.nivixx.ndatabase.api.exception.*;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
@@ -259,6 +256,15 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             throw new DatabaseException(e);
         } finally {
             close(connection, ps);
+        }
+    }
+
+    @Override
+    public void validateConnection() throws NDatabaseLoadException {
+        try {
+            pool.connect();
+        } catch (Exception e) {
+            throw new NDatabaseLoadException("Failed to connect to the database", e);
         }
     }
 

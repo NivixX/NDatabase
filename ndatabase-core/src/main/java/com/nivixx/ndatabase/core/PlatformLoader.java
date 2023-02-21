@@ -8,6 +8,7 @@ import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
+import com.nivixx.ndatabase.core.dao.DatabaseConnection;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
@@ -27,14 +28,25 @@ public abstract class PlatformLoader extends AbstractModule  {
         nDatabaseConfig.verifyConfig();
         DBLogger dbLogger = supplyDbLogger(nDatabaseConfig.isDebugMode());
         bind(DBLogger.class).toInstance(dbLogger);
-        if(nDatabaseConfig.getDatabaseType() == DatabaseType.MYSQL) {
-            bind(HikariConnectionPool.class).toInstance(new HikariConnectionPool(nDatabaseConfig.getMysqlConfig()));
-        }
-        if(nDatabaseConfig.getDatabaseType() == DatabaseType.SQLITE) {
-            bind(SqliteConnectionPool.class).toInstance(new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger));
-        }
-        if(nDatabaseConfig.getDatabaseType() == DatabaseType.MONGODB) {
-            bind(MongodbConnection.class).toInstance(new MongodbConnection(nDatabaseConfig.getMongoDBConfig()));
+        switch (nDatabaseConfig.getDatabaseType()) {
+            case MYSQL:
+                HikariConnectionPool hikariConnectionPool = new HikariConnectionPool(nDatabaseConfig.getMysqlConfig());
+                bind(HikariConnectionPool.class).toInstance(hikariConnectionPool);
+                bind(DatabaseConnection.class).toInstance(hikariConnectionPool);
+                break;
+            case SQLITE:
+                SqliteConnectionPool sqliteConnectionPool = new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger);
+                bind(SqliteConnectionPool.class).toInstance(sqliteConnectionPool);
+                bind(DatabaseConnection.class).toInstance(sqliteConnectionPool);
+                break;
+            case MONGODB:
+                MongodbConnection mongodbConnection = new MongodbConnection(nDatabaseConfig.getMongoDBConfig());
+                bind(MongodbConnection.class).toInstance(mongodbConnection);
+                bind(DatabaseConnection.class).toInstance(mongodbConnection);
+                break;
+            default:
+                bind(DatabaseConnection.class).toInstance(() -> {});
+                break;
         }
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 
@@ -45,6 +57,7 @@ public abstract class PlatformLoader extends AbstractModule  {
     public void load() throws NDatabaseLoadException {
         try {
             loadConfigAndDepencies();
+            com.nivixx.ndatabase.core.Injector.resolveInstance(DatabaseConnection.class).connect();
         } catch (Throwable t) {
             throw new NDatabaseLoadException("Failed to load NDatabase, error during configuration or loading", t);
         }

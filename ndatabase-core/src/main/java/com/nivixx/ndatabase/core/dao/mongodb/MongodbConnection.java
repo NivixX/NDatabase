@@ -4,22 +4,23 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoDatabase;
 import com.nivixx.ndatabase.core.config.MongoDBConfig;
+import com.nivixx.ndatabase.core.dao.DatabaseConnection;
 
-public class MongodbConnection {
+public class MongodbConnection implements DatabaseConnection {
 
     private MongoDatabase database;
     private MongoDBConfig config;
 
     public MongodbConnection(MongoDBConfig mongoDBConfig) {
         this.config = mongoDBConfig;
-        connect();
     }
 
     public MongoDatabase getDatabase() {
         return database;
     }
 
-    public void connect() {
+    @Override
+    public void connect() throws Exception {
         // Creating Credentials
         MongoCredential credential =
                 MongoCredential.createCredential(config.getUser(), config.getDatabase(), config.getPass().toCharArray());

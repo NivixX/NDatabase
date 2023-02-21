@@ -1,9 +1,6 @@
 package com.nivixx.ndatabase.core.dao.inmemory;
 
-import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
-import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
-import com.nivixx.ndatabase.api.exception.NDatabaseException;
-import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
+import com.nivixx.ndatabase.api.exception.*;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.serialization.BytesNEntityEncoder;
@@ -94,6 +91,13 @@ public class InMemoryDao<K, V extends NEntity<K>> extends Dao<K, V> {
                 .map(bytes -> byteObjectSerializer.decode(bytes, classz))
                 .filter(predicate)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void validateConnection() throws NDatabaseLoadException {
+        if(map == null) {
+            throw new NDatabaseLoadException("in memory Map is null");
+        }
     }
 
     @Override
