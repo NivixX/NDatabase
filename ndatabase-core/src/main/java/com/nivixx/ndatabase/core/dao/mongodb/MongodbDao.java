@@ -21,6 +21,8 @@ import com.nivixx.ndatabase.core.serialization.JsonStringNEntityEncoder;
 import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 import org.bson.Document;
+import org.bson.json.JsonMode;
+import org.bson.json.JsonWriterSettings;
 import org.bson.types.ObjectId;
 
 import java.util.*;
@@ -31,6 +33,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
+
+    private final JsonWriterSettings jsonWriterSettings =
+            JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build();
 
     private MongodbConnection mongodbConnection;
     protected NEntityEncoder<V, String> jsonStringObjectSerializer;
@@ -131,7 +136,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
                     return false;
                 }
                 Document document = cursor.next();
-                action.accept(jsonStringObjectSerializer.decode(document.toJson(), classz));
+                action.accept(jsonStringObjectSerializer.decode(document.toJson(jsonWriterSettings), classz));
                 return true;
             }
         }, false).onClose(cursor::close);
@@ -143,7 +148,7 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
         V returnedValue = null;
         if(first != null) {
-            returnedValue = jsonStringObjectSerializer.decode(first.toJson(), classz);
+            returnedValue = jsonStringObjectSerializer.decode(first.toJson(jsonWriterSettings), classz);
         }
         dbLogger.logGet(returnedValue);
         return returnedValue;

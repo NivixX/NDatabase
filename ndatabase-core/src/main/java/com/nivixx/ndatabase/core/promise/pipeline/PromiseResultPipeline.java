@@ -69,21 +69,27 @@ public class PromiseResultPipeline<P extends PromiseResultCallback<E>, E> extend
     }
 
     @Override
-    protected void handleDatabaseException(P bukkitCallback, Throwable e) {
+    protected void handleDatabaseException(P bukkitCallback, Throwable throwable) {
         if(!bukkitCallback.isProvidedExceptionHandler()) {
             dbLogger.logWarn(
                     String.format("Async database result promise ended with an" +
-                            " exception and you didn't handled the exception, error message: '%s'." +
-                            "If you want to handle the exception, you can use the " +
-                            "then or thenAsync((entity, throwable) -> ) method. location: %s",
-                            e.getMessage(), stackTraceElementCaller.toString()));
+                                    " exception and you didn't handled the exception, error message: '%s'." +
+                                    "If you want to handle the exception, you can use the " +
+                                    "then or thenAsync((entity, throwable) -> ) method. location: %s",
+                            throwable.getMessage(), stackTraceElementCaller.toString()));
+            throwable.printStackTrace();
             return;
         }
         if(bukkitCallback.isAsync()) {
-            bukkitCallback.getResultCallback().accept(null, e);
+            try {
+                bukkitCallback.getResultCallback().accept(null, throwable);
+            }
+            catch (Throwable internalThrowable) {
+                internalThrowable.printStackTrace();
+            }
         }
         else { // SYNC
-            syncExecutor.runSync(() -> bukkitCallback.getResultCallback().accept(null, e));
+            syncExecutor.runSync(() -> bukkitCallback.getResultCallback().accept(null, throwable));
         }
     }
 }
