@@ -1,6 +1,5 @@
 # Your database type
-# - IN_MEMORY - clear data when shutdown, useful for testing new plugin
-# - SQLITE (default)
+# - SQLITE local storage (default)
 # - MYSQL
 # - MONGODB (Recommended)
 database-type: SQLITE

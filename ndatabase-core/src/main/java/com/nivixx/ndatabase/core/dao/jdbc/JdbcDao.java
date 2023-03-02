@@ -2,10 +2,13 @@ package com.nivixx.ndatabase.core.dao.jdbc;
 
 import com.nivixx.ndatabase.api.exception.*;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.api.query.NQuery;
+import com.nivixx.ndatabase.api.query.SingleNodePath;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
-import com.nivixx.ndatabase.core.serialization.BytesNEntityEncoder;
-import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTree;
+import com.nivixx.ndatabase.core.expressiontree.SqlExpressionTreeVisitor;
+import com.nivixx.ndatabase.core.serialization.encoder.BytesNEntityEncoder;
+import com.nivixx.ndatabase.core.serialization.encoder.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.sql.*;
@@ -239,6 +242,130 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
     }
 
     @Override
+    public void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException {
+        List<String> fullPathsToIndex = new ArrayList<>();
+        for (SingleNodePath singleNodePath : singleNodePaths) {
+            SingleNodePath currentNode = singleNodePath;
+            String path = "";
+            while(currentNode != null) {
+                path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
+                currentNode = currentNode.getChild();
+            }
+            fullPathsToIndex.add(path);
+        }
+        Connection connection = null;
+        PreparedStatement ps = null;
+        Savepoint saveBeforeIndexCreation = null;
+        try {
+            connection = pool.getConnection();
+            try {
+                connection.setAutoCommit(false);
+                saveBeforeIndexCreation = connection.setSavepoint();
+                for (String pathToIndex : fullPathsToIndex) {
+                    // path.to.field
+                    // MYSQL doesn't allow "." in column names
+                    String columnName = pathToIndex.replaceAll("\\.","_");
+
+                    // Create column if not exist
+                    try {
+                        ps = connection.prepareStatement(
+                                "ALTER TABLE " + collectionName + " ADD COLUMN " + columnName + " INT GENERATED ALWAYS AS "
+                                        + "("
+                                        + "`"+ DATA_IDENTIFIER + "`->> '$." + pathToIndex +"'"
+                                        + ")"
+                        );
+                        ps.execute();
+                    } catch (SQLException e) {
+                        // TODO better way may be possible
+                        if(!e.getMessage().toLowerCase().contains("duplicate column name")) {
+                            throw new DatabaseException("Error during index creation by de-normalization", e);
+                        }
+                    }
+
+                    // Index this column if not exist
+                    ps = connection.prepareStatement(
+                            "CREATE INDEX IF NOT EXISTS " + columnName + "_index ON " + collectionName + " (" + columnName + ")"
+                    );
+                    ps.execute();
+                }
+            } catch (SQLException e) {
+                connection.rollback(saveBeforeIndexCreation);
+                throw new DatabaseException("Error during index creation by de-normalization", e);
+            } finally {
+                connection.releaseSavepoint(saveBeforeIndexCreation);
+                connection.commit();
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+        finally {
+            close(connection, ps);
+        }
+    }
+
+    @Override
+    public Optional<V> findOne(NQuery.Predicate expression, Class<V> classz) {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        byte[] dataFound = null;
+        try {
+            connection = pool.getConnection();
+
+            ExpressionTree<K,V> expressionTree = ExpressionTree.fromExpressionString(expression.getPredicate(), classz);
+            SqlExpressionTreeVisitor<K,V> visitor = new SqlExpressionTreeVisitor<>("SELECT data FROM " + collectionName + " WHERE ");
+            visitor.visit(expressionTree);
+            ps = visitor.getPreparedStatement(connection);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                dataFound = rs.getBytes(DATA_IDENTIFIER);
+            }
+        } catch (SQLException e) {
+            throw new NDatabaseException(e);
+        } finally {
+            close(connection, ps, rs);
+        }
+
+
+        V returnedValue = null;
+        if(dataFound != null) {
+            returnedValue = byteObjectSerializer.decode(dataFound, classz);
+        }
+        dbLogger.logGet(returnedValue);
+        return Optional.ofNullable(returnedValue);
+    }
+
+    @Override
+    public List<V> find(NQuery.Predicate expression, Class<V> classz) {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        byte[] dataFound = null;
+        List<V> entities = new ArrayList<>();
+        try {
+            connection = pool.getConnection();
+
+            ExpressionTree<K,V> expressionTree = ExpressionTree.fromExpressionString(expression.getPredicate(), classz);
+            SqlExpressionTreeVisitor<K,V> visitor = new SqlExpressionTreeVisitor<>("SELECT data FROM " + collectionName + " WHERE ");
+            visitor.visit(expressionTree);
+            ps = visitor.getPreparedStatement(connection);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                dataFound = rs.getBytes(DATA_IDENTIFIER);
+                if(dataFound != null) {
+                    entities.add(byteObjectSerializer.decode(dataFound, classz));
+                }
+            }
+        } catch (SQLException e) {
+            throw new NDatabaseException(e);
+        } finally {
+            close(connection, ps, rs);
+        }
+
+        return entities;
+    }
+
+    @Override
     public void createDatabaseIfNotExist(Class<K> keyType) throws DatabaseCreationException {
         Connection connection = null;
         PreparedStatement ps = null;
@@ -248,7 +375,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                     "CREATE TABLE IF NOT EXISTS " + collectionName
                             + "("
                             + DATA_KEY_IDENTIFIER + " " + getDatabaseKeyType() + " PRIMARY KEY,"
-                            + "data MEDIUMBLOB"
+                            + "data JSON"
                             + ")"
             );
             ps.execute();

@@ -5,7 +5,6 @@ import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.dao.inmemory.InMemoryDao;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbDao;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
@@ -25,8 +24,6 @@ public class DatabaseTypeResolver {
         NTable nTable = extractNTable(nEntity);
 
         switch (nDatabaseConfig.getDatabaseType()) {
-            case IN_MEMORY:
-                return new InMemoryDao<>(nTable.name(), nTable.schema(), keyType, dbLogger);
             case MYSQL:
                 HikariConnectionPool hikariConnectionPool = Injector.resolveInstance(HikariConnectionPool.class);
                 return new MysqlDao<>(

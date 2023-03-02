@@ -5,9 +5,9 @@
     <parent>
         <artifactId>ndatabase</artifactId>
         <groupId>com.nivixx</groupId>
-        <version>0.5.2-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
 

@@ -5,6 +5,7 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.exception.DuplicateKeyException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.api.query.NQuery;
 
 import java.util.Comparator;
 import java.util.List;
@@ -52,13 +53,59 @@ public interface Repository<K, V extends NEntity<K>> {
      * and apply your predicate.
      * An index mechanism will be implemented sooner or later
      *
+     * @deprecated use "streamAndFindOneAsync" instead
+     * or use the indexed version using NQuery
+     *
      * @param predicate your predicate that will be applied to your entities
      * @return {@link Promise.AsyncResult} an async promise which will contain
      * your entity (as an Optional) or a throwable if an exception occurred.
      * By recalling this promise, you can consume the operation result either
      * in the same async thread or inside the main thread.
      */
+    @Deprecated
     Promise.AsyncResult<Optional<V>> findOneAsync(Predicate<V> predicate);
+
+    /**
+     * Find an entity given your own predicate
+     * <pre>{@code
+     *     .findOneAsync((nEntity) -> nEntity.getScore() > 20)
+     *     // return an entity that have a score higher than 20
+     * }</pre>
+     * Note that at the current stage of NDatabase, this method is not performant.
+     * As value's field are not indexed, this method will stream all your entities
+     * and apply your predicate.
+     * An index mechanism will be implemented sooner or later
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return {@link Promise.AsyncResult} an async promise which will contain
+     * your entity (as an Optional) or a throwable if an exception occurred.
+     * By recalling this promise, you can consume the operation result either
+     * in the same async thread or inside the main thread.
+     */
+    Promise.AsyncResult<Optional<V>> streamAndFindOneAsync(Predicate<V> predicate);
+
+    /**
+     * Find all entities given your own predicate
+     * <pre>{@code
+     *     .findAsync((nEntity) -> nEntity.getScore() > 20)
+     *     // return all entities that have a score higher than 20
+     * }</pre>
+     * Note that at the current stage of NDatabase, this method is not performant.
+     * As value's field are not indexed, this method will stream all your entities
+     * and apply your predicate.
+     * An index mechanism will be implemented sooner or later
+     *
+     * @deprecated use "streamAndFindOneAsync" instead
+     * or use the indexed version using NQuery
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return {@link Promise.AsyncResult} an async promise which will contain
+     * a list of entities or a throwable if an exception occurred.
+     * By recalling this promise, you can consume the operation result either
+     * in the same async thread or inside the main thread.
+     */
+    @Deprecated
+    Promise.AsyncResult<List<V>> findAsync(Predicate<V> predicate);
 
     /**
      * Find all entities given your own predicate
@@ -77,7 +124,7 @@ public interface Repository<K, V extends NEntity<K>> {
      * By recalling this promise, you can consume the operation result either
      * in the same async thread or inside the main thread.
      */
-    Promise.AsyncResult<List<V>> findAsync(Predicate<V> predicate);
+    Promise.AsyncResult<List<V>> streamAndFindAsync(Predicate<V> predicate);
 
     /**
      * Insert your entity in the database.
@@ -245,4 +292,48 @@ public interface Repository<K, V extends NEntity<K>> {
      * in the same async thread or inside the main thread.on)
      */
     Promise.AsyncResult<List<V>> computeTopAsync(int topMax, Comparator<V> comparator);
+
+    /**
+     * Find an entity given a NQuery
+     * Read more here : https://github.com/NivixX/NDatabase
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return an entity that match your query or empty Optional.
+     * Not that if there is more than one result, it won't throw an exception.
+     */
+    Optional<V> findOne(NQuery.Predicate predicate);
+
+    /**
+     * Find an entity given a NQuery
+     * Read more here : https://github.com/NivixX/NDatabase
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return {@link Promise.AsyncResult} an async promise which will contain
+     * your entity (as an Optional) or a throwable if an exception occurred.
+     * By recalling this promise, you can consume the operation result either
+     * in the same async thread or inside the main thread.
+     */
+    Promise.AsyncResult<Optional<V>> findOneAsync(NQuery.Predicate predicate);
+
+    /**
+     * Find a list of entities given a NQuery
+     * Read more here : https://github.com/NivixX/NDatabase
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return entity list that match your query or empty Optional.
+     * Not that if there is more than one result, it won't throw an exception.
+     */
+    List<V> find(NQuery.Predicate predicate);
+
+    /**
+     * Find a list of entities given a NQuery
+     * Read more here : https://github.com/NivixX/NDatabase
+     *
+     * @param predicate your predicate that will be applied to your entities
+     * @return {@link Promise.AsyncResult} an async promise which will contain
+     * your entity (as an Optional) or a throwable if an exception occurred.
+     * By recalling this promise, you can consume the operation result either
+     * in the same async thread or inside the main thread.
+     */
+    Promise.AsyncResult<List<V>> findAsync(NQuery.Predicate predicate);
 }

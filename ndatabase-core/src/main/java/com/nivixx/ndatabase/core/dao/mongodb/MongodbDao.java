@@ -1,13 +1,11 @@
 package com.nivixx.ndatabase.core.dao.mongodb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoServerException;
-import com.mongodb.MongoWriteException;
+import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -16,14 +14,18 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.api.query.NQuery;
+import com.nivixx.ndatabase.api.query.SingleNodePath;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.serialization.JsonStringNEntityEncoder;
-import com.nivixx.ndatabase.core.serialization.NEntityEncoder;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTree;
+import com.nivixx.ndatabase.core.expressiontree.MongoExpressionTreeVisitor;
+import com.nivixx.ndatabase.core.serialization.encoder.JsonStringNEntityEncoder;
+import com.nivixx.ndatabase.core.serialization.encoder.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
-import org.bson.types.ObjectId;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -180,5 +182,55 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
         if(!collectionExists) {
             getDatabase().createCollection(collectionName);
         }
+    }
+
+    @Override
+    public void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException {
+        List<String> fullPathsToIndex = new ArrayList<>();
+        for (SingleNodePath singleNodePath : singleNodePaths) {
+            SingleNodePath currentNode = singleNodePath;
+            String path = "";
+            while(currentNode != null) {
+                path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
+                currentNode = currentNode.getChild();
+            }
+            fullPathsToIndex.add(path);
+        }
+
+        for (String pathsToIndex : fullPathsToIndex) {
+            getCollection().createIndex(Indexes.ascending(pathsToIndex));
+            dbLogger.logDebug("Created index if not exists " + pathsToIndex);
+        }
+    }
+
+    @Override
+    public Optional<V> findOne(NQuery.Predicate expression, Class<V> classz) {
+
+        ExpressionTree<K,V> expressionTree = ExpressionTree.fromExpressionString(expression.getPredicate(), classz);
+        MongoExpressionTreeVisitor<K,V> visitor = new MongoExpressionTreeVisitor<>();
+        visitor.visit(expressionTree);
+        Bson filter = visitor.getBson();
+        FindIterable<Document> documents = getCollection().find(filter);
+        Document first = documents.first();
+        if(first == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(jsonStringObjectSerializer.decode(first.toJson(jsonWriterSettings), classz));
+    }
+
+    @Override
+    public List<V> find(NQuery.Predicate expression, Class<V> classz) {
+        List<V> entities = new ArrayList<>();
+        ExpressionTree<K,V> expressionTree = ExpressionTree.fromExpressionString(expression.getPredicate(), classz);
+        MongoExpressionTreeVisitor<K,V> visitor = new MongoExpressionTreeVisitor<>();
+        visitor.visit(expressionTree);
+        Bson filter = visitor.getBson();
+        FindIterable<Document> documents = getCollection().find(filter);
+        MongoCursor<Document> cursor = documents.cursor();
+        while(cursor.hasNext()) {
+            Document next = cursor.next();
+            entities.add(jsonStringObjectSerializer.decode(next.toJson(jsonWriterSettings), classz));
+        }
+        return entities;
     }
 }

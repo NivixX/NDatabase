@@ -4,6 +4,8 @@ import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.api.query.NQuery;
+import com.nivixx.ndatabase.api.query.SingleNodePath;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.util.List;
@@ -13,11 +15,11 @@ import java.util.stream.Stream;
 
 public abstract class Dao<K, V extends NEntity<K>> {
 
-    protected String collectionName;
-    protected String schema;
+    protected final String collectionName;
+    protected final String schema;
 
-    protected Class<K> keyType;
-    protected DBLogger dbLogger;
+    protected final Class<K> keyType;
+    protected final DBLogger dbLogger;
 
     public Dao(String collectionName, String schema, Class<K> keyType, DBLogger dbLogger) {
         this.collectionName = collectionName;
@@ -25,6 +27,7 @@ public abstract class Dao<K, V extends NEntity<K>> {
         this.dbLogger = dbLogger;
         this.schema = schema;
     }
+
 
     public abstract void insert(V value) throws NDatabaseException;
 
@@ -49,4 +52,10 @@ public abstract class Dao<K, V extends NEntity<K>> {
 
     public abstract void createDatabaseIfNotExist(Class<K> keyType) throws DatabaseCreationException;
 
+    public abstract void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException;
+
+
+    public abstract Optional<V> findOne(NQuery.Predicate expression, Class<V> classz);
+
+    public abstract List<V> find(NQuery.Predicate expression, Class<V> classz);
 }

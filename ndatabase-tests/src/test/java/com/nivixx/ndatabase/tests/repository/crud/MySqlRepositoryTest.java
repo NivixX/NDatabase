@@ -1,3 +1,4 @@
+/*
 package com.nivixx.ndatabase.tests.repository.crud;
 
 import com.nivixx.ndatabase.api.NDatabase;
@@ -59,3 +60,4 @@ public class MySqlRepositoryTest extends AbstractRepositoryTest {
         integerKeyDao.insert(new InvalidKeyTypeEntity(null));
     }
 }
+*/

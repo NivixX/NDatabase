@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class NDatabaseConfig {
 
-    protected DatabaseType databaseType = DatabaseType.IN_MEMORY;
+    protected DatabaseType databaseType = DatabaseType.SQLITE;
 
     protected MysqlConfig mysqlConfig;
     protected SqliteConfig sqliteConfig;

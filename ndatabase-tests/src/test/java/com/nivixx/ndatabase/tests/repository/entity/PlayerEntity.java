@@ -1,5 +1,7 @@
 package com.nivixx.ndatabase.tests.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.model.NEntity;
 
@@ -10,10 +12,18 @@ import java.util.UUID;
 @NTable(name = "my_table_name")
 public class PlayerEntity extends NEntity<UUID> {
 
+    @Indexed
     private String name = "name";
-    private int score = 10;
+
+    @Indexed
+    @JsonProperty("score")
+    private int playerScore = 10;
+
+    private EmbeddedObject embeddedObject = new EmbeddedObject();
+
     private List<EmbeddedObject> embeddedObjects =
             Arrays.asList(new EmbeddedObject(), new EmbeddedObject());
+
     private boolean bool = true;
 
     public PlayerEntity() {
@@ -24,7 +34,7 @@ public class PlayerEntity extends NEntity<UUID> {
         super(key);
         embeddedObjects = Arrays.asList(new EmbeddedObject(), new EmbeddedObject());
         this.name = name;
-        this.score = score;
+        this.playerScore = score;
     }
 
     public String getName() {
@@ -35,12 +45,12 @@ public class PlayerEntity extends NEntity<UUID> {
         this.name = name;
     }
 
-    public int getScore() {
-        return score;
+    public int getPlayerScore() {
+        return playerScore;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setPlayerScore(int playerScore) {
+        this.playerScore = playerScore;
     }
 
 
@@ -62,5 +72,13 @@ public class PlayerEntity extends NEntity<UUID> {
 
     public void setBool(boolean bool) {
         this.bool = bool;
+    }
+
+    public EmbeddedObject getEmbeddedObject() {
+        return embeddedObject;
+    }
+
+    public void setEmbeddedObject(EmbeddedObject embeddedObject) {
+        this.embeddedObject = embeddedObject;
     }
 }

@@ -3,8 +3,10 @@ package com.nivixx.ndatabase.core;
 import com.nivixx.ndatabase.api.Promise;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTreeVisitor;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseEmptyResultPipeline;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseResultPipeline;
@@ -56,11 +58,20 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
         return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
     }
 
+    @Override
+    public Promise.AsyncResult<Optional<V>> streamAndFindOneAsync(Predicate<V> predicate) {
+        return findOneAsync(predicate);
+    }
 
     @Override
     public Promise.AsyncResult<List<V>> findAsync(Predicate<V> predicate) {
         CompletableFuture<List<V>> future = CompletableFuture.supplyAsync(() -> dao.find(predicate, classz));
         return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
+    }
+
+    @Override
+    public Promise.AsyncResult<List<V>> streamAndFindAsync(Predicate<V> predicate) {
+        return findAsync(predicate);
     }
 
     @Override
@@ -146,6 +157,28 @@ public class RepositoryImpl<K, V extends NEntity<K>> implements Repository<K, V>
                         .sorted(comparator)
                         .limit(topMax)
                         .collect(Collectors.toList()));
+        return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
+    }
+
+    @Override
+    public Optional<V> findOne(NQuery.Predicate predicate) {
+        return dao.findOne(predicate, classz);
+    }
+
+    @Override
+    public Promise.AsyncResult<Optional<V>> findOneAsync(NQuery.Predicate predicate) {
+        CompletableFuture<Optional<V>> future = CompletableFuture.supplyAsync(() -> dao.findOne(predicate, classz));
+        return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
+    }
+
+    @Override
+    public List<V> find(NQuery.Predicate predicate) {
+        return dao.find(predicate, classz);
+    }
+
+    @Override
+    public Promise.AsyncResult<List<V>> findAsync(NQuery.Predicate predicate) {
+        CompletableFuture<List<V>> future = CompletableFuture.supplyAsync(() -> dao.find(predicate, classz));
         return new PromiseResultPipeline<>(future, syncExecutor, asyncThreadPool, dbLogger);
     }
 }

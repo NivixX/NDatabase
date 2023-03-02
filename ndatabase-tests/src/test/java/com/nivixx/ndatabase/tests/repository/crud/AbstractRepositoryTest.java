@@ -2,6 +2,7 @@ package com.nivixx.ndatabase.tests.repository.crud;
 
 import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
+import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.tests.repository.entity.*;
@@ -59,12 +60,12 @@ public abstract class AbstractRepositoryTest {
     public void updateExistingValue() {
         UUID uuid = UUID.randomUUID();
         PlayerEntity playerEntity = new PlayerEntity(uuid);
-        playerEntity.setScore(10);
+        playerEntity.setPlayerScore(10);
         repository.insert(playerEntity);
-        playerEntity.setScore(20);
+        playerEntity.setPlayerScore(20);
         repository.update(playerEntity);
         PlayerEntity entityFromDb = repository.get(uuid);
-        Assert.assertEquals(entityFromDb.getScore(), 20);
+        Assert.assertEquals(entityFromDb.getPlayerScore(), 20);
     }
 
     @Test(expected = NDatabaseException.class)
@@ -87,14 +88,14 @@ public abstract class AbstractRepositoryTest {
     public void upsertPresentEntityUpdatedValue() {
         UUID uuid = UUID.randomUUID();
         PlayerEntity playerEntity = new PlayerEntity(uuid);
-        playerEntity.setScore(10);
+        playerEntity.setPlayerScore(10);
         repository.upsert(playerEntity);
         PlayerEntity entityFromDb = repository.get(uuid);
-        Assert.assertEquals(entityFromDb.getScore(), 10);
-        playerEntity.setScore(20);
+        Assert.assertEquals(entityFromDb.getPlayerScore(), 10);
+        playerEntity.setPlayerScore(20);
         repository.upsert(playerEntity);
         entityFromDb = repository.get(uuid);
-        Assert.assertEquals(entityFromDb.getScore(), 20);
+        Assert.assertEquals(entityFromDb.getPlayerScore(), 20);
     }
 
 
@@ -123,7 +124,7 @@ public abstract class AbstractRepositoryTest {
         repository.insert(player1);
         repository.insert(player2);
         Optional<PlayerEntity> playerWith20Score =
-                repository.findOneAsync(playerEntity -> playerEntity.getScore() == 20).getResultFuture().join();
+                repository.findOneAsync(playerEntity -> playerEntity.getPlayerScore() == 20).getResultFuture().join();
         Assert.assertTrue(playerWith20Score.isPresent());
         Assert.assertEquals(playerWith20Score.get().getKey(), player2Id);
     }
@@ -137,7 +138,7 @@ public abstract class AbstractRepositoryTest {
         repository.insert(player1);
         repository.insert(player2);
         Optional<PlayerEntity> playerWith25Score =
-                repository.findOneAsync(playerEntity -> playerEntity.getScore() == 25).getResultFuture().join();
+                repository.findOneAsync(playerEntity -> playerEntity.getPlayerScore() == 25).getResultFuture().join();
         Assert.assertFalse(playerWith25Score.isPresent());
     }
 
@@ -153,7 +154,7 @@ public abstract class AbstractRepositoryTest {
         repository.insert(player2);
         repository.insert(player3);
         List<PlayerEntity> playersWithScoreHigherThan15 =
-                repository.findAsync(playerEntity -> playerEntity.getScore() > 15).getResultFuture().join();
+                repository.findAsync(playerEntity -> playerEntity.getPlayerScore() > 15).getResultFuture().join();
         Assert.assertEquals(playersWithScoreHigherThan15.size(), 2);
         Assert.assertTrue(playersWithScoreHigherThan15.stream()
                 .anyMatch(playerEntity -> playerEntity.getKey().equals(player2Id)));
@@ -167,7 +168,7 @@ public abstract class AbstractRepositoryTest {
         PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
         repository.insert(player1);
         List<PlayerEntity> playersWithScoreHigherThan15 =
-                repository.findAsync(playerEntity -> playerEntity.getScore() > 15).getResultFuture().join();
+                repository.findAsync(playerEntity -> playerEntity.getPlayerScore() > 15).getResultFuture().join();
         Assert.assertTrue(playersWithScoreHigherThan15.isEmpty());
     }
 
@@ -186,22 +187,22 @@ public abstract class AbstractRepositoryTest {
     public void computeTop() {
 
         PlayerEntity playerEntityTop1 = new PlayerEntity(UUID.randomUUID());
-        playerEntityTop1.setScore(100);
+        playerEntityTop1.setPlayerScore(100);
         PlayerEntity playerEntityTop2 = new PlayerEntity(UUID.randomUUID());
-        playerEntityTop2.setScore(50);
+        playerEntityTop2.setPlayerScore(50);
         PlayerEntity playerEntityTop3 = new PlayerEntity(UUID.randomUUID());
-        playerEntityTop3.setScore(20);
+        playerEntityTop3.setPlayerScore(20);
         PlayerEntity playerEntityTop4 = new PlayerEntity(UUID.randomUUID());
-        playerEntityTop4.setScore(10);
+        playerEntityTop4.setPlayerScore(10);
         PlayerEntity playerEntityTop5 = new PlayerEntity(UUID.randomUUID());
-        playerEntityTop5.setScore(1);
+        playerEntityTop5.setPlayerScore(1);
         repository.insert(playerEntityTop1);
         repository.insert(playerEntityTop5);
         repository.insert(playerEntityTop2);
         repository.insert(playerEntityTop4);
         repository.insert(playerEntityTop3);
 
-        List<PlayerEntity> join = repository.computeTopAsync(3, (o1, o2) -> o2.getScore() - o1.getScore()).getResultFuture().join();
+        List<PlayerEntity> join = repository.computeTopAsync(3, (o1, o2) -> o2.getPlayerScore() - o1.getPlayerScore()).getResultFuture().join();
 
         Assert.assertEquals(playerEntityTop1.getKey(), join.get(0).getKey());
         Assert.assertEquals(playerEntityTop2.getKey(), join.get(1).getKey());
@@ -233,6 +234,195 @@ public abstract class AbstractRepositoryTest {
         Repository<String, StringKeyEntity> integerKeyDao =
                 NDatabase.api().getOrCreateRepository(StringKeyEntity.class);
         integerKeyDao.insert(new StringKeyEntity("key"));
+    }
+
+
+    @Test
+    public void findOneIndex_simple() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score == 25");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_simple_compareString() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.name == name1");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_simple_logical_different() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score != 1");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_simple_logical_greater() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score > 24");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_simple_logical_greaterOrEquals() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score >= 25");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+
+    @Test
+    public void findOneIndex_simple_logical_less() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score < 30");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+
+    @Test
+    public void findOneIndex_simple_logical_lessOrEquals() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score <= 10");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_simpleNotMatch() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score==24");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertFalse(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_bySubObjectField() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        player2.getEmbeddedObject().setField(50);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.embeddedObject.field ==50");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_or_true_false() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score== 25 || $.score == 10");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void findOneIndex_and_true_false() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score == 25 && $.score == 10");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertFalse(playerWith25Score.isPresent());
+    }
+
+
+    @Test
+    public void findOneIndex_and_true_true() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("$.score == 25 && $.name == name2");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+
+    @Test
+    public void findOneIndex_brackets() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("($.embeddedObject.field == 2 && $.score == 24 ) || $.score == 10");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
+    }
+
+
+    @Test
+    public void findMultipleIndex_simple() {
+        UUID player1Id = UUID.randomUUID();
+        UUID player2Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
+        repository.insert(player1);
+        repository.insert(player2);
+        NQuery.Predicate expression = NQuery.predicate("($.embeddedObject.field == 2 && $.score == 24 ) || $.score == 10");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertTrue(playerWith25Score.isPresent());
     }
 
 

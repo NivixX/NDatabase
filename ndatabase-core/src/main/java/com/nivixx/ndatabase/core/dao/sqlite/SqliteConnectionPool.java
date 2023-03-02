@@ -49,7 +49,7 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
             }
         }
 
-        if(connection!=null&&!connection.isClosed()){
+        if(connection != null && !connection.isClosed()){
             return connection;
         }
         connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
