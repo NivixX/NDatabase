@@ -5,6 +5,8 @@ import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.Dao;
+import com.nivixx.ndatabase.core.dao.mariadb.HikariMariaConnectionPool;
+import com.nivixx.ndatabase.core.dao.mariadb.MariaDao;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbDao;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
@@ -31,6 +33,14 @@ public class DatabaseTypeResolver {
                         nTable.schema(),
                         keyType,
                         hikariConnectionPool,
+                        dbLogger);
+            case MARIADB:
+                HikariMariaConnectionPool hikariConnectionPoolMaria = Injector.resolveInstance(HikariMariaConnectionPool.class);
+                return new MariaDao<>(
+                        nTable.name(),
+                        nTable.schema(),
+                        keyType,
+                        hikariConnectionPoolMaria,
                         dbLogger);
             case SQLITE:
                 SqliteConnectionPool sqliteConnectionPool = Injector.resolveInstance(SqliteConnectionPool.class);

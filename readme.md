@@ -16,7 +16,7 @@
 NDatabase is a lightweight and easy to use **indexed**
 [key-value store](https://en.wikipedia.org/wiki/Key%E2%80%93value_database) database framework mainly aimed for minecraft servers and is multi-platform (currently supporting Bukkit / Spigot servers).
 It can be used as a plugin, so you can install it once and use it everywhere without having to configure a database and duplicate connection pool each time you develop a new plugin. The API provide a fluent way to handle Async data fetch and server
-main thread callback with [async to sync](#fluent-async-to-sync-API) mechanism. NDatabase can support multiple databases (currently MySQL, SQLite, and MongoDB implementation).
+main thread callback with [async to sync](#fluent-async-to-sync-API) mechanism. NDatabase can support multiple databases (currently MySQL, MariaDB, SQLite, and MongoDB implementation).
 NDatabase can support java 8 from 18 and higher and all minecraft server version (tested from 1.8 to 1.19+).
 
 [**NDatabase WIKI**](https://github.com/NivixX/NDatabase/wiki)

@@ -1,6 +1,7 @@
 # Your database type
 # - SQLITE local storage (default)
 # - MYSQL
+# - MARIADB
 # - MONGODB (Recommended)
 database-type: SQLITE
 
@@ -21,9 +22,26 @@ database:
     user: ''
     pass: ''
 
-    # Depending on your MySQL version or fork, you may want to change the driver
     # default com.mysql.jdbc.Driver
     driver-class-name: 'com.mysql.jdbc.Driver'
+
+    # Set the minimum constantly opened connection with your database
+    # note that the number of plugin won't multiply this number
+    # so you can config this number according to your needs
+    minimum-idle-connection: 3
+
+    # Maximum number of connection in the pool
+    maximum-pool-size: 10
+  mariadb:
+
+    # Full host path containing host:port/database_name
+    # exemple: jdbc:mysql://localhost:3306/ndatabase
+    host: 'jdbc:mysql://localhost:3306/your_database_name'
+    user: ''
+    pass: ''
+
+    # default org.mariadb.jdbc.Driver
+    driver-class-name: 'org.mariadb.jdbc.Driver'
 
     # Set the minimum constantly opened connection with your database
     # note that the number of plugin won't multiply this number

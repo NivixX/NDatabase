@@ -109,6 +109,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
                     jsonFieldName = declaredField.getName();
                 }
                 children.setPathName(jsonFieldName);
+                children.setType(type);
                 parentNode.setChild(children);
                 nodePaths.add(parentNode);
                 parentNode = new SingleNodePath();

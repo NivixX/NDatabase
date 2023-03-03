@@ -45,7 +45,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         try {
             connection = pool.getConnection();
             ps = connection.prepareStatement(
-                    "INSERT INTO " + collectionName + " VALUES(?,?)"
+                    "INSERT INTO " + collectionName + "(" + DATA_KEY_IDENTIFIER + "," + DATA_IDENTIFIER + ") VALUES(?,?)"
             );
             bindKeyToStatement(ps,1, key);
             ps.setObject(2, byteObjectSerializer.encode(value));
@@ -67,14 +67,14 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         try {
             connection = pool.getConnection();
             ps = connection.prepareStatement(
-                    "INSERT INTO " + collectionName + " VALUES(?,?) ON DUPLICATE KEY UPDATE " + DATA_IDENTIFIER + " = ?"
+                    "INSERT INTO " + collectionName + "(" + DATA_KEY_IDENTIFIER + "," + DATA_IDENTIFIER + ") VALUES(?,?) ON DUPLICATE KEY UPDATE " + DATA_IDENTIFIER + " = ?"
             );
             byte[] valueBytes = byteObjectSerializer.encode(value);
             bindKeyToStatement(ps,1, key);
             ps.setObject(2, valueBytes);
             ps.setObject(3, valueBytes);
             ps.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new DatabaseException(e);
         } finally {
             close(connection, ps);
@@ -243,16 +243,6 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException {
-        List<String> fullPathsToIndex = new ArrayList<>();
-        for (SingleNodePath singleNodePath : singleNodePaths) {
-            SingleNodePath currentNode = singleNodePath;
-            String path = "";
-            while(currentNode != null) {
-                path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
-                currentNode = currentNode.getChild();
-            }
-            fullPathsToIndex.add(path);
-        }
         Connection connection = null;
         PreparedStatement ps = null;
         Savepoint saveBeforeIndexCreation = null;
@@ -261,17 +251,26 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             try {
                 connection.setAutoCommit(false);
                 saveBeforeIndexCreation = connection.setSavepoint();
-                for (String pathToIndex : fullPathsToIndex) {
+                for (SingleNodePath singleNodePath : singleNodePaths) {
+                    SingleNodePath currentNode = singleNodePath;
+                    String path = "";
+                    Class<?> fieldType = null;
+                    while(currentNode != null) {
+                        path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
+                        currentNode = currentNode.getChild();
+                        if(currentNode != null) {
+                            fieldType = currentNode.getType();
+                        }
+                    }
                     // path.to.field
                     // MYSQL doesn't allow "." in column names
-                    String columnName = pathToIndex.replaceAll("\\.","_");
-
+                    String columnName = path.replaceAll("\\.","_");
                     // Create column if not exist
                     try {
                         ps = connection.prepareStatement(
-                                "ALTER TABLE " + collectionName + " ADD COLUMN " + columnName + " INT GENERATED ALWAYS AS "
+                                "ALTER TABLE " + collectionName + " ADD COLUMN " + columnName + " " + getColumnType(false, fieldType) + " GENERATED ALWAYS AS "
                                         + "("
-                                        + "`"+ DATA_IDENTIFIER + "`->> '$." + pathToIndex +"'"
+                                        + "`"+ DATA_IDENTIFIER + "`->> '$." + path +"'"
                                         + ")"
                         );
                         ps.execute();
@@ -374,7 +373,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             ps = connection.prepareStatement(
                     "CREATE TABLE IF NOT EXISTS " + collectionName
                             + "("
-                            + DATA_KEY_IDENTIFIER + " " + getDatabaseKeyType() + " PRIMARY KEY,"
+                            + DATA_KEY_IDENTIFIER + " " + getColumnType(true, keyType) + " PRIMARY KEY,"
                             + "data JSON"
                             + ")"
             );
@@ -395,22 +394,27 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         }
     }
 
-    protected String getDatabaseKeyType() {
-        if(keyType.isAssignableFrom(UUID.class)) {
+    protected String getColumnType(boolean isForKey, Class<?> type) {
+        if(type.isAssignableFrom(UUID.class)) {
             return "CHAR(36)";
         }
-        if(keyType.isAssignableFrom(String.class)) {
-            return "VARCHAR(80)";
+        if(type.isAssignableFrom(String.class)) {
+            if(isForKey) {
+                return "VARCHAR(1200)"; // TODO manage max row size
+            }
+            else {
+                return "TEXT";
+            }
         }
-        if(keyType.isAssignableFrom(Long.class)) {
+        if(type.isAssignableFrom(Long.class) || type.getName().equals("long")) {
             return "LONG";
         }
-        if(keyType.isAssignableFrom(Integer.class)) {
+        if(type.isAssignableFrom(Integer.class) || type.getName().equals("int")) {
             return "INTEGER";
         }
         throw new DatabaseCreationException(
-                String.format("Mysql doesn't support key of type '%s', verify that your NEntity" +
-                        " use a key of type String, UUID, Long, or Integer", keyType)
+                String.format("Mysql doesn't support type '%s', verify that your NEntity" +
+                        " use a key of type String, UUID, Long, or Integer", type)
         );
     }
 

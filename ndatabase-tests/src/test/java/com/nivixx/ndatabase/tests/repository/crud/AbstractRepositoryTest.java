@@ -253,14 +253,20 @@ public abstract class AbstractRepositoryTest {
     @Test
     public void findOneIndex_simple_compareString() {
         UUID player1Id = UUID.randomUUID();
-        UUID player2Id = UUID.randomUUID();
         PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
-        PlayerEntity player2 = new PlayerEntity(player2Id, "name2", 25);
         repository.insert(player1);
-        repository.insert(player2);
         NQuery.Predicate expression = NQuery.predicate("$.name == name1");
         Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
         Assert.assertTrue(playerWith25Score.isPresent());
+    }
+    @Test
+    public void findOneIndex_simple_compareStringDiff() {
+        UUID player1Id = UUID.randomUUID();
+        PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
+        repository.insert(player1);
+        NQuery.Predicate expression = NQuery.predicate("$.name != name1");
+        Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
+        Assert.assertFalse(playerWith25Score.isPresent());
     }
 
     @Test

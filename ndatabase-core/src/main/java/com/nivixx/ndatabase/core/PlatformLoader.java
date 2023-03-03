@@ -9,6 +9,7 @@ import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.DatabaseConnection;
+import com.nivixx.ndatabase.core.dao.mariadb.HikariMariaConnectionPool;
 import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
 import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
@@ -33,6 +34,11 @@ public abstract class PlatformLoader extends AbstractModule  {
                 HikariConnectionPool hikariConnectionPool = new HikariConnectionPool(nDatabaseConfig.getMysqlConfig());
                 bind(HikariConnectionPool.class).toInstance(hikariConnectionPool);
                 bind(DatabaseConnection.class).toInstance(hikariConnectionPool);
+                break;
+            case MARIADB:
+                HikariMariaConnectionPool hikariConnectionPoolMaria = new HikariMariaConnectionPool(nDatabaseConfig.getMariaDBConfig());
+                bind(HikariMariaConnectionPool.class).toInstance(hikariConnectionPoolMaria);
+                bind(DatabaseConnection.class).toInstance(hikariConnectionPoolMaria);
                 break;
             case SQLITE:
                 SqliteConnectionPool sqliteConnectionPool = new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger);

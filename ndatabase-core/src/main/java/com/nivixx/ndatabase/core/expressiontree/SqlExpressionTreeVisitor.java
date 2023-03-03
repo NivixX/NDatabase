@@ -66,7 +66,7 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
                 return left + " " + "?" + " " + right;
             }
             // BOOLEAN BINARY OPERATOR CASE
-            return left + " " + operator + " " + right;
+            return left + " " + getBinaryOperatorToken(binaryOperator) + " " + right;
         }
     }
 

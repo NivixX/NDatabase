@@ -39,6 +39,17 @@ public class BukkitPlaformLoader extends PlatformLoader {
         mysqlConfig.setUser(mysql.getString("user","user"));
         mysqlConfig.setPass(mysql.getString("pass","pass"));
 
+        ConfigurationSection mariadb = config.getConfigurationSection("database.mariadb");
+        MariaDBConfig mariadbConfig = new MariaDBConfig();
+        mariadbConfig.setHost(mariadb.getString("host","localhost"));
+        mariadbConfig.setClassName(mariadb.getString("driver-class-name","com.mysql.jdbc.Driver"));
+        mariadbConfig.setMinimumIdleConnection(mariadb.getInt("minimum-idle-connection",1));
+        mariadbConfig.setMaximumPoolSize(mariadb.getInt("maximum-pool-size", 3));
+        mariadbConfig.setPort(mariadb.getInt("port", 3306));
+        mariadbConfig.setDatabaseName(mariadb.getString("database-name","ndatabase"));
+        mariadbConfig.setUser(mariadb.getString("user","user"));
+        mariadbConfig.setPass(mariadb.getString("pass","pass"));
+
         ConfigurationSection sqlite = config.getConfigurationSection("database.sqlite");
         SqliteConfig sqliteConfig = new SqliteConfig();
         String fileName = sqlite.getString("file-name", "ndatabase.sqlite");
@@ -64,6 +75,7 @@ public class BukkitPlaformLoader extends PlatformLoader {
         bukkitNDatabaseConfig.setIdleThreadPoolSize(config.getInt("idle-thread-pool-size",3));
         bukkitNDatabaseConfig.setDatabaseType(DatabaseType.valueOf(config.getString("database-type")));
         bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
+        bukkitNDatabaseConfig.setMariaDBConfig(mariadbConfig);
         bukkitNDatabaseConfig.setSqliteConfig(sqliteConfig);
         bukkitNDatabaseConfig.setMongoDBConfig(mongoDBConfig);
 

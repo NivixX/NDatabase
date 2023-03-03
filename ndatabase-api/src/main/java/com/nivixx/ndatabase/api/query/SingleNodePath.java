@@ -5,8 +5,17 @@ import java.util.List;
 
 public class SingleNodePath {
 
+    private Class<?> type;
     private String pathName;
     private SingleNodePath child;
+
+    public Class<?> getType() {
+        return type;
+    }
+
+    public void setType(Class<?> type) {
+        this.type = type;
+    }
 
     public SingleNodePath() {
         this.pathName = "";

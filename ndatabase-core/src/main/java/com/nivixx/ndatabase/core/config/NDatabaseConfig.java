@@ -6,6 +6,7 @@ public class NDatabaseConfig {
 
     protected DatabaseType databaseType = DatabaseType.SQLITE;
 
+    protected MariaDBConfig mariaDBConfig;
     protected MysqlConfig mysqlConfig;
     protected SqliteConfig sqliteConfig;
     protected MongoDBConfig mongoDBConfig;
@@ -23,6 +24,14 @@ public class NDatabaseConfig {
             Objects.requireNonNull(mysqlConfig.getUser(), "mysql user is null, check your mysql configuration");
             Objects.requireNonNull(mysqlConfig.getPass(), "mysql pass is null, check your mysql configuration");
         }
+    }
+
+    public MariaDBConfig getMariaDBConfig() {
+        return mariaDBConfig;
+    }
+
+    public void setMariaDBConfig(MariaDBConfig mariaDBConfig) {
+        this.mariaDBConfig = mariaDBConfig;
     }
 
     public MongoDBConfig getMongoDBConfig() {
