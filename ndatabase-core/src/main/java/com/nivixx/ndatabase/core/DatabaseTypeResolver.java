@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 
 public class DatabaseTypeResolver {
 
-    public <K,V extends NEntity<K>> Dao<K,V> getDaoForConfiguredDatabase(V nEntity, Class<K> keyType) {
+    public <K,V extends NEntity<K>> Dao<K,V> getDaoForConfiguredDatabase(V nEntity, Class<K> keyType, Class<V> nEntityType) {
 
         DBLogger dbLogger = Injector.resolveInstance(DBLogger.class);
         NDatabaseConfig nDatabaseConfig = Injector.resolveInstance(NDatabaseConfig.class);
@@ -32,6 +32,7 @@ public class DatabaseTypeResolver {
                         nTable.name(),
                         nTable.schema(),
                         keyType,
+                        nEntityType,
                         hikariConnectionPool,
                         dbLogger);
             case MARIADB:
@@ -40,6 +41,7 @@ public class DatabaseTypeResolver {
                         nTable.name(),
                         nTable.schema(),
                         keyType,
+                        nEntityType,
                         hikariConnectionPoolMaria,
                         dbLogger);
             case SQLITE:
@@ -48,6 +50,7 @@ public class DatabaseTypeResolver {
                         nTable.name(),
                         nTable.schema(),
                         keyType,
+                        nEntityType,
                         sqliteConnectionPool,
                         dbLogger);
             case MONGODB:
@@ -56,6 +59,7 @@ public class DatabaseTypeResolver {
                         nTable.name(),
                         nTable.schema(),
                         keyType,
+                        nEntityType,
                         mongodbConnection,
                         dbLogger
                 );

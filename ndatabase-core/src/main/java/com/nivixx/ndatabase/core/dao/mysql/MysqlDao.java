@@ -7,10 +7,12 @@ import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 public class MysqlDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
 
     public MysqlDao(String collectionName,
-                    String schema, Class<K> keyType,
+                    String schema,
+                    Class<K> keyType,
+                    Class<V> nEntityType,
                     HikariConnectionPool hikariConnectionPool,
                     DBLogger dbLogger) {
-        super(collectionName, schema, keyType, hikariConnectionPool,  dbLogger);
+        super(collectionName, schema, keyType, nEntityType, hikariConnectionPool,  dbLogger);
     }
 
     // Override here if mysql implementation need more specifications

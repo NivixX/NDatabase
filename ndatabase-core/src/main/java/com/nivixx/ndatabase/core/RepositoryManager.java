@@ -11,6 +11,7 @@ import com.nivixx.ndatabase.api.query.SingleNodePath;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
+import com.nivixx.ndatabase.core.reflection.NReflectionUtil;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
@@ -45,19 +46,19 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         Class<K> keyType = resolveKeyFromEntity(nEntity);
 
         // Find configured database type (MYSQL, MongoDB, ...)
-        Dao<K,V> dao = databaseTypeResolver.getDaoForConfiguredDatabase(nEntity, keyType);
+        Dao<K,V> dao = databaseTypeResolver.getDaoForConfiguredDatabase(nEntity, keyType, entityType);
 
         // Create the database/schema structure if doesn't exist
         dao.createDatabaseIfNotExist(keyType);
 
-        List<SingleNodePath> singleNodePathList = new ArrayList<>();
+        // Index the key-value store
+        List<SingleNodePath> indexSingleNodePathList = new ArrayList<>();
         try {
-            resolveIndexedFieldsFromEntity(singleNodePathList, new SingleNodePath(), nEntity);
+            resolveIndexedFieldsFromEntity(indexSingleNodePathList, new SingleNodePath(), nEntity);
         } catch (Exception e) {
             throw new DatabaseCreationException("Failed to resolve nEntity index paths ", e);
         }
-
-        dao.createIndexes(singleNodePathList);
+        dao.createIndexes(indexSingleNodePathList);
 
         // Init repository
         DBLogger dbLogger = Injector.resolveInstance(DBLogger.class);
@@ -69,7 +70,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         return repository;
     }
 
-    public V createEntityInstance(Class<V> entityClass) throws DatabaseCreationException {
+    private V createEntityInstance(Class<V> entityClass) throws DatabaseCreationException {
         try {
             return entityClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -81,7 +82,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
     }
 
     @SuppressWarnings("unchecked")
-    public Class<K> resolveKeyFromEntity(V nEntity) {
+    private Class<K> resolveKeyFromEntity(V nEntity) {
         try {
             ParameterizedType genericSuperclass = (ParameterizedType) nEntity.getClass().getGenericSuperclass();
             Type actualTypeArgument = genericSuperclass.getActualTypeArguments()[0];
@@ -94,57 +95,25 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         }
     }
 
-    public void resolveIndexedFieldsFromEntity(List<SingleNodePath> nodePaths, SingleNodePath parentNode, Object object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void resolveIndexedFieldsFromEntity(List<SingleNodePath> nodePaths, SingleNodePath parentNode, Object object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Field[] declaredFields = object.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             Class<?> type = declaredField.getType();
+            String jsonFieldName = NReflectionUtil.resolveJsonFieldName(declaredField);
+
             if(declaredField.isAnnotationPresent(Indexed.class)) {
                 SingleNodePath children = new SingleNodePath();
-                String jsonFieldName;
-                if(declaredField.isAnnotationPresent(JsonProperty.class)) {
-                    JsonProperty jsonProperty = declaredField.getAnnotation(JsonProperty.class);
-                    jsonFieldName = jsonProperty.value();
-                }
-                else {
-                    jsonFieldName = declaredField.getName();
-                }
                 children.setPathName(jsonFieldName);
                 children.setType(type);
                 parentNode.setChild(children);
                 nodePaths.add(parentNode);
                 parentNode = new SingleNodePath();
             }
-            else if(!type.isPrimitive() && !type.isEnum()  && !type.getPackage().getName().startsWith("java.")) {
+            else if(!NReflectionUtil.isNativeJavaClass(type)) {
                 SingleNodePath children = new SingleNodePath();
-                String jsonFieldName;
-                if(declaredField.isAnnotationPresent(JsonProperty.class)) {
-                    JsonProperty jsonProperty = declaredField.getAnnotation(JsonProperty.class);
-                    jsonFieldName = jsonProperty.value();
-                }
-                else {
-                    jsonFieldName = declaredField.getName();
-                }
                 children.setPathName(jsonFieldName);
                 parentNode.setChild(children);
                 resolveIndexedFieldsFromEntity(nodePaths, children, type.getDeclaredConstructor().newInstance());
-            }
-        }
-    }
-
-    public void resolveIndexedFieldsFromEntity(MultiNodePath parentNode, Object object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            Class<?> type = declaredField.getType();
-            if(!type.isPrimitive() && !type.isEnum() && !type.getPackage().getName().startsWith("java.")) {
-                MultiNodePath children = new MultiNodePath();
-                children.setPathName(declaredField.getName());
-                parentNode.addChild(children);
-                resolveIndexedFieldsFromEntity(children, type.getDeclaredConstructor().newInstance());
-            }
-            if(declaredField.isAnnotationPresent(Indexed.class)) {
-                MultiNodePath children = new MultiNodePath();
-                children.setPathName(declaredField.getName());
-                parentNode.addChild(children);
             }
         }
     }

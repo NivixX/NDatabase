@@ -14,10 +14,12 @@ import java.sql.SQLException;
 public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
 
     public SqliteDao(String collectionName,
-                     String schema, Class<K> keyType,
+                     String schema,
+                     Class<K> keyType,
+                     Class<V> nEntityType,
                      SqliteConnectionPool sqliteConnectionPool,
                      DBLogger dbLogger) {
-        super(collectionName, schema, keyType, sqliteConnectionPool,  dbLogger);
+        super(collectionName, schema, keyType, nEntityType, sqliteConnectionPool,  dbLogger);
     }
 
     // Sqlite handle upsert differently

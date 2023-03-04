@@ -12,6 +12,7 @@ import com.nivixx.ndatabase.core.serialization.encoder.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.sql.*;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -30,9 +31,10 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
     public JdbcDao(String collectionName,
                    String schema,
                    Class<K> keyType,
+                   Class<V> nEntityType,
                    JdbcConnectionPool connectionPoolManager,
                    DBLogger dbLogger) {
-        super(collectionName, schema, keyType, dbLogger);
+        super(collectionName, schema, keyType, nEntityType, dbLogger);
         this.pool = connectionPoolManager;
         this.byteObjectSerializer = new BytesNEntityEncoder<>();
     }
@@ -125,9 +127,10 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         PreparedStatement ps = null;
         try {
             connection = pool.getConnection();
-            ps = connection.prepareStatement(
-                    "UPDATE  " + collectionName + " SET "+ DATA_IDENTIFIER +  "= ? WHERE " + DATA_KEY_IDENTIFIER +"= ?"
-            );
+            String updateQuery = MessageFormat.format(
+                    "UPDATE {0} SET {1} = ? WHERE {2} = ?",
+                    collectionName, DATA_IDENTIFIER, DATA_KEY_IDENTIFIER);
+            ps = connection.prepareStatement(updateQuery);
 
             ps.setObject(1, byteObjectSerializer.encode(value));
             bindKeyToStatement(ps,2, key);
@@ -148,9 +151,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         PreparedStatement ps = null;
         try {
             connection = pool.getConnection();
-            ps = connection.prepareStatement(
-                    "DELETE FROM  " + collectionName
-            );
+            ps = connection.prepareStatement("DELETE FROM " + collectionName);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new NDatabaseException(e);
@@ -165,12 +166,10 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
     public Stream<V> streamAllValues(Class<V> classz) throws NDatabaseException {
         try {
             final Connection connection = pool.getConnection();
-            final PreparedStatement ps = connection.prepareStatement(
-                    "SELECT * FROM " + collectionName
-            );
+            final PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + collectionName);
             final ResultSet rs = ps.executeQuery();
 
-            Stream<V> resultStream = StreamSupport.stream(new Spliterators.AbstractSpliterator<V>(Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE) {
+            return StreamSupport.stream(new Spliterators.AbstractSpliterator<V>(Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE) {
                 @Override
                 public boolean tryAdvance(Consumer<? super V> action) {
                     try {
@@ -193,7 +192,6 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                     throw new DatabaseException(e);
                 }
             });
-            return resultStream;
 
         } catch (SQLException e) {
             throw new NDatabaseException(e);
@@ -209,9 +207,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         byte[] dataFound = null;
         try {
             connection = pool.getConnection();
-            ps = connection.prepareStatement(
-                    "SELECT data FROM " + collectionName + " WHERE "+ DATA_KEY_IDENTIFIER + " = ?"
-            );
+            ps = connection.prepareStatement("SELECT data FROM " + collectionName + " WHERE "+ DATA_KEY_IDENTIFIER + " = ?");
             bindKeyToStatement(ps, 1, key);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -243,62 +239,54 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException {
-        Connection connection = null;
-        PreparedStatement ps = null;
-        Savepoint saveBeforeIndexCreation = null;
-        try {
-            connection = pool.getConnection();
-            try {
-                connection.setAutoCommit(false);
-                saveBeforeIndexCreation = connection.setSavepoint();
-                for (SingleNodePath singleNodePath : singleNodePaths) {
-                    SingleNodePath currentNode = singleNodePath;
-                    String path = "";
-                    Class<?> fieldType = null;
-                    while(currentNode != null) {
-                        path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
-                        currentNode = currentNode.getChild();
-                        if(currentNode != null) {
-                            fieldType = currentNode.getType();
-                        }
-                    }
-                    // path.to.field
-                    // MYSQL doesn't allow "." in column names
-                    String columnName = path.replaceAll("\\.","_");
-                    // Create column if not exist
-                    try {
-                        ps = connection.prepareStatement(
-                                "ALTER TABLE " + collectionName + " ADD COLUMN " + columnName + " " + getColumnType(false, fieldType) + " GENERATED ALWAYS AS "
-                                        + "("
-                                        + "`"+ DATA_IDENTIFIER + "`->> '$." + path +"'"
-                                        + ")"
-                        );
-                        ps.execute();
-                    } catch (SQLException e) {
-                        // TODO better way may be possible
-                        if(!e.getMessage().toLowerCase().contains("duplicate column name")) {
-                            throw new DatabaseException("Error during index creation by de-normalization", e);
-                        }
-                    }
-
-                    // Index this column if not exist
-                    ps = connection.prepareStatement(
-                            "CREATE INDEX IF NOT EXISTS " + columnName + "_index ON " + collectionName + " (" + columnName + ")"
-                    );
-                    ps.execute();
-                }
-            } catch (SQLException e) {
-                connection.rollback(saveBeforeIndexCreation);
-                throw new DatabaseException("Error during index creation by de-normalization", e);
-            } finally {
-                connection.releaseSavepoint(saveBeforeIndexCreation);
-                connection.commit();
+        try (Connection connection = pool.getConnection()) {
+            for (SingleNodePath singleNodePath : singleNodePaths) {
+                // Create column if not exist and index it
+                denormalizeFieldIntoColumn(connection, singleNodePath);
             }
         } catch (SQLException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseCreationException(
+                    "Error during index creation by de-normalization for NEntity " + nEntityType.getCanonicalName(), e);
         }
-        finally {
-            close(connection, ps);
+    }
+
+    private void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
+        SingleNodePath currentNode = singleNodePath;
+        String fieldPath = "";
+        Class<?> fieldType = null;
+        while(currentNode != null) {
+            fieldPath = fieldPath.isEmpty() ? currentNode.getPathName() : fieldPath + "." + currentNode.getPathName();
+            currentNode = currentNode.getChild();
+            if(currentNode != null) {
+                fieldType = currentNode.getType();
+            }
+        }
+        // path.to.field
+        // MYSQL doesn't allow "." in column names
+        String columnName = fieldPath.replaceAll("\\.","_");
+
+        String addColumnQuery = MessageFormat.format(
+                "ALTER TABLE {0} ADD COLUMN {1} {2} GENERATED ALWAYS AS" +
+                        "(`{3}`->> ''$.{4}'')",
+                collectionName, columnName, getColumnType(false, fieldType),
+                DATA_IDENTIFIER, fieldPath);
+
+        try (PreparedStatement ps = connection.prepareStatement(addColumnQuery)) {
+            ps.execute();
+        }
+        catch (SQLException e) {
+            // TODO better way may be possible
+            if(!e.getMessage().toLowerCase().contains("duplicate column name")) {
+                throw e;
+            }
+        }
+
+        // Index this column if not exist
+        String createIndexQuery = MessageFormat.format(
+                "CREATE INDEX IF NOT EXISTS {0}_index ON {1}({2})",
+                columnName, collectionName, columnName);
+        try (PreparedStatement ps = connection.prepareStatement(createIndexQuery)) {
+            ps.execute();
         }
     }
 
@@ -379,7 +367,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             );
             ps.execute();
         } catch (SQLException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseCreationException("Failed to create table for NEntity " + nEntityType.getCanonicalName(), e);
         } finally {
             close(connection, ps);
         }
@@ -406,7 +394,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                 return "TEXT";
             }
         }
-        if(type.isAssignableFrom(Long.class) || type.getName().equals("long")) {
+        if(type.isAssignableFrom(Long.class) ||  type.getName().equals("long")) {
             return "LONG";
         }
         if(type.isAssignableFrom(Integer.class) || type.getName().equals("int")) {

@@ -11,17 +11,16 @@ import java.io.IOException;
 
 public class BytesNEntityEncoder<V extends NEntity<?>> extends NEntityEncoder<V, byte[]> {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public BytesNEntityEncoder() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper = objectMapper;
     }
 
     @Override
     public byte[] encode(V value) throws NEntityEncodingException {
-        if(value == null) { return null; }
+        if(value == null) { return new byte[0]; }
         try {
             return objectMapper.writeValueAsBytes(value);
         } catch (JsonProcessingException e) {

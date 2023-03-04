@@ -53,9 +53,10 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     public MongodbDao(String collectionName,
                       String schema,
                       Class<K> keyType,
+                      Class<V> nEntityType,
                       MongodbConnection mongodbConnection,
                       DBLogger dbLogger) {
-        super(collectionName, schema, keyType, dbLogger);
+        super(collectionName, schema, keyType, nEntityType, dbLogger);
         this.mongodbConnection = mongodbConnection;
         this.jsonStringObjectSerializer = new JsonStringNEntityEncoder<>();
     }

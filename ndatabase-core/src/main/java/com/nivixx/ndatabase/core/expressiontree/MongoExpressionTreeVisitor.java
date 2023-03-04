@@ -2,19 +2,17 @@ package com.nivixx.ndatabase.core.expressiontree;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Filters;
-import com.nivixx.ndatabase.api.exception.InvalidExpressionException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.BsonValue;
 import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
-import java.sql.SQLException;
-import java.util.function.BiFunction;
-
 public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends ExpressionTreeVisitor<K,V> {
+
+    private final static String DOCUMENT_VALUE_KEY = "VALUE";
+    private final static String DOCUMENT_FIELD_KEY = "FIELD";
 
     private Bson bson;
 
@@ -30,7 +28,6 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
     public Bson generateFilterRecursively(ExpressionTreeNode node) {
         if(node == null) { return null; }
         Bson left = generateFilterRecursively(node.left);
-        String operator = node.token;
         Bson right = generateFilterRecursively(node.right);
 
         // BRACKETS HANDLING (OR / AND)
@@ -44,13 +41,12 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
 
         // OPERAND PATH CASE
         else if(node.token.startsWith("$.")) {
-            return new Document("FIELD", node.token.substring(2));
+            return new Document(DOCUMENT_FIELD_KEY, node.token.substring(2));
         }
         else {
             // CONSTANT VALUE CASE
-            if(binaryOperator == BooleanBinaryOperator.UNKNOW) {
-                Document documentValueType = getDocumentValueType(node.token);
-                return documentValueType;
+            if(binaryOperator == BooleanBinaryOperator.UNKNOWN) {
+                return getDocumentValueType(node.token);
             }
             // BOOLEAN BINARY OPERATOR CASE
             BsonDocument leftDoc = left.toBsonDocument(Document.class, MongoClient.getDefaultCodecRegistry());
@@ -63,12 +59,12 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
     private Bson getBooleanExpressionFilter(BooleanBinaryOperator binaryOperator, BsonDocument docLeft, BsonDocument docRight) {
         String fieldPath;
         Object value;
-        if(docLeft.containsKey("FIELD")) {
-            fieldPath = docLeft.get("FIELD").asString().getValue();
+        if(docLeft.containsKey(DOCUMENT_FIELD_KEY)) {
+            fieldPath = docLeft.get(DOCUMENT_FIELD_KEY).asString().getValue();
             value = extractValueFromDocument(docRight);
         }
         else {
-            fieldPath = docRight.get("FIELD").asString().getValue();
+            fieldPath = docRight.get(DOCUMENT_FIELD_KEY).asString().getValue();
             value = extractValueFromDocument(docLeft);
         }
 
@@ -91,7 +87,7 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
     }
 
     private Object extractValueFromDocument(BsonDocument document) {
-        BsonValue value = document.get("VALUE");
+        BsonValue value = document.get(DOCUMENT_VALUE_KEY);
         BsonType bsonType = value.getBsonType();
         switch (bsonType) {
             case DOUBLE:
@@ -115,14 +111,14 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
 
         try {
             double doubleValue = Double.parseDouble(value);
-            return new Document("VALUE", doubleValue);
+            return new Document(DOCUMENT_VALUE_KEY, doubleValue);
         }
         catch (NumberFormatException e) { }
 
         // Number
         try {
             long longValue = Long.parseLong(value);
-            return new Document("VALUE", longValue);
+            return new Document(DOCUMENT_VALUE_KEY, longValue);
         }
         catch (NumberFormatException e) { }
 
@@ -136,10 +132,10 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
         }
         if(booleanValue != null) {
             boolean finalBooleanValue = booleanValue;
-            return new Document("VALUE", finalBooleanValue);
+            return new Document(DOCUMENT_VALUE_KEY, finalBooleanValue);
         }
 
         // String
-        return new Document("VALUE", value);
+        return new Document(DOCUMENT_VALUE_KEY, value);
     }
 }

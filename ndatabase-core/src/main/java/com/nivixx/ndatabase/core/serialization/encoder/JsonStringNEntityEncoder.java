@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class JsonStringNEntityEncoder<V extends NEntity<?>> extends NEntityEncoder<V, String> {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public JsonStringNEntityEncoder() {
         ObjectMapper objectMapper = new ObjectMapper();

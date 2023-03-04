@@ -14,13 +14,13 @@ import java.util.function.Consumer;
 public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends ExpressionTreeVisitor<K,V> {
 
     private String sqlQuery;
-    private List<Consumer<PreparedStatement>> preparedStatementConsumers;
-    private int currentPreparedStatmentIndex;
+    private int currentPreparedStatementIndex;
+    private final List<Consumer<PreparedStatement>> preparedStatementConsumers;
 
     public SqlExpressionTreeVisitor(String sqlQuery) {
         this.sqlQuery = sqlQuery;
         this.preparedStatementConsumers = new ArrayList<>();
-        this.currentPreparedStatmentIndex = 1;
+        this.currentPreparedStatementIndex = 1;
     }
 
     public PreparedStatement getPreparedStatement(Connection connection) throws NDatabaseException {
@@ -45,7 +45,6 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
     private String parseIntoQueryRecursively(ExpressionTreeNode node) {
         if(node == null) { return ""; }
         String left = parseIntoQueryRecursively(node.left);
-        String operator = node.token;
         String right = parseIntoQueryRecursively(node.right);
 
         // BRACKETS HANDLING (OR / AND)
@@ -56,12 +55,11 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
 
         // OPERAND PATH CASE
         else if(node.token.startsWith("$.")) {
-            String[] paths = node.token.substring(2).split("\\.");
             return left + " " + getPathToken(node.token) + " " + right;
         }
         else {
             // CONSTANT VALUE CASE
-            if(binaryOperator == BooleanBinaryOperator.UNKNOW) {
+            if(binaryOperator == BooleanBinaryOperator.UNKNOWN) {
                 addStatementConsumer(node.token);
                 return left + " " + "?" + " " + right;
             }
@@ -103,7 +101,7 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
             case OR:
                 binaryOperatorToken = "OR";
                 break;
-            case UNKNOW:
+            case UNKNOWN:
                 break;
         }
         return binaryOperatorToken;
@@ -115,8 +113,8 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
             double doubleValue = Double.parseDouble(value);
             preparedStatementConsumers.add(ps -> {
                 try {
-                    ps.setDouble(currentPreparedStatmentIndex, doubleValue);
-                    currentPreparedStatmentIndex++;
+                    ps.setDouble(currentPreparedStatementIndex, doubleValue);
+                    currentPreparedStatementIndex++;
                 } catch (SQLException e) {
                     throw new InvalidExpressionException(e);
                 }
@@ -130,8 +128,8 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
             long longValue = Long.parseLong(value);
             preparedStatementConsumers.add(ps -> {
                 try {
-                    ps.setLong(currentPreparedStatmentIndex, longValue);
-                    currentPreparedStatmentIndex++;
+                    ps.setLong(currentPreparedStatementIndex, longValue);
+                    currentPreparedStatementIndex++;
                 } catch (SQLException e) {
                     throw new InvalidExpressionException(e);
                 }
@@ -152,8 +150,8 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
             boolean finalBooleanValue = booleanValue;
             preparedStatementConsumers.add(ps -> {
                 try {
-                    ps.setBoolean(currentPreparedStatmentIndex, finalBooleanValue);
-                    currentPreparedStatmentIndex++;
+                    ps.setBoolean(currentPreparedStatementIndex, finalBooleanValue);
+                    currentPreparedStatementIndex++;
                 } catch (SQLException e) {
                     throw new InvalidExpressionException(e);
                 }
@@ -164,8 +162,8 @@ public class SqlExpressionTreeVisitor<K,V extends NEntity<K>> extends Expression
         // string
         preparedStatementConsumers.add(ps -> {
             try {
-                ps.setString(currentPreparedStatmentIndex, value);
-                currentPreparedStatmentIndex++;
+                ps.setString(currentPreparedStatementIndex, value);
+                currentPreparedStatementIndex++;
             } catch (SQLException e) {
                 throw new InvalidExpressionException(e);
             }

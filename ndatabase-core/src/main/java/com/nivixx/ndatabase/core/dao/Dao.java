@@ -19,11 +19,13 @@ public abstract class Dao<K, V extends NEntity<K>> {
     protected final String schema;
 
     protected final Class<K> keyType;
+    protected final Class<V> nEntityType;
     protected final DBLogger dbLogger;
 
-    public Dao(String collectionName, String schema, Class<K> keyType, DBLogger dbLogger) {
+    protected Dao(String collectionName, String schema, Class<K> keyType, Class<V> nEntityType, DBLogger dbLogger) {
         this.collectionName = collectionName;
         this.keyType = keyType;
+        this.nEntityType = nEntityType;
         this.dbLogger = dbLogger;
         this.schema = schema;
     }

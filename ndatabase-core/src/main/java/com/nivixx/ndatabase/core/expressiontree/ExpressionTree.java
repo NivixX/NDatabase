@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.core.reflection.NReflectionUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -11,13 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ExpressionTree<K,V extends NEntity<K>> {
 
-    private Class<V> nEntityClass;
-
-    private ExpressionTreeNode root;
-
-    public ExpressionTreeNode getRoot() {
-        return root;
-    }
+    private final Class<V> nEntityClass;
+    private final ExpressionTreeNode root;
 
     public ExpressionTree(Class<V> nEntityClass, ExpressionTreeNode firstNode) {
         this.nEntityClass = nEntityClass;
@@ -38,7 +34,7 @@ public class ExpressionTree<K,V extends NEntity<K>> {
         return expressionTree;
     }
 
-    public void validateNEntityPath(ExpressionTreeNode root) {
+    private void validateNEntityPath(ExpressionTreeNode root) {
         if (root != null) {
             validateNEntityPath(root.left);
             if(root.token.startsWith("$.")) {
@@ -54,14 +50,7 @@ public class ExpressionTree<K,V extends NEntity<K>> {
     private boolean validateNEntityDeclaration(String[] paths, Class<?> classType) {
         Field[] declaredFields = classType.getDeclaredFields();
         for (Field declaredField : declaredFields) {
-            String jsonFieldName;
-            if(declaredField.isAnnotationPresent(JsonProperty.class)) {
-                JsonProperty jsonProperty = declaredField.getAnnotation(JsonProperty.class);
-                jsonFieldName = jsonProperty.value();
-            }
-            else {
-                jsonFieldName = declaredField.getName();
-            }
+            String jsonFieldName = NReflectionUtil.resolveJsonFieldName(declaredField);
 
             if(classType.getPackage().getName().startsWith("java.")) {
                 continue;
@@ -75,9 +64,7 @@ public class ExpressionTree<K,V extends NEntity<K>> {
                 }
                 else {
                     String[] trimmedPath = new String[paths.length-1];
-                    for (int i = 1; i < paths.length; i++) {
-                        trimmedPath[i-1] = paths[i];
-                    }
+                    System.arraycopy(paths, 1, trimmedPath, 0, paths.length - 1);
                     if(validateNEntityDeclaration(trimmedPath, declaredField.getType())) {
                         return true;
                     }
@@ -137,7 +124,6 @@ public class ExpressionTree<K,V extends NEntity<K>> {
                 else {
                     tokens.add(reader);
                 }
-                reader = "";
                 remainingExpression = remainingExpression.substring(readerEndIndex);
                 readerEndIndex = 0;
             }
@@ -165,7 +151,7 @@ public class ExpressionTree<K,V extends NEntity<K>> {
                 }
                 opStack.pop();
             } else {
-                while (!opStack.isEmpty() && getPriority(opStack.peek()) >= getPriority(token)) {
+                while (!opStack.isEmpty() && getOperatorPriority(opStack.peek()) >= getOperatorPriority(token)) {
                     numStack.push(buildNode(numStack.pop(), numStack.pop(), opStack.pop()));
                 }
                 opStack.push(token);
@@ -177,26 +163,18 @@ public class ExpressionTree<K,V extends NEntity<K>> {
         return numStack.isEmpty() ? null : numStack.pop();
     }
 
-    private boolean isBooleanOperator(String token) {
-        return BooleanBinaryOperator.isAssignable(token);
-    }
-
-    private static int getPriority(String op) {
-        // NOT AND OR --> priority
-        if (op.equals("(")) {
-            return 0;
-        }
-        else if (op.equals("||")) {
-            return 1;
-        }
-        else if (op.equals("&&")) {
-            return 2;
-        }
-        else if (op.equals("!=")) {
-            return 3;
-        }
-        else {
-            return 4;
+    private static int getOperatorPriority(String operator) {
+        switch (operator) {
+            case "(":
+                return 0;
+            case "||":
+                return 1;
+            case "&&":
+                return 2;
+            case "!=":
+                return 3;
+            default:
+                return 4;
         }
     }
 
@@ -204,6 +182,10 @@ public class ExpressionTree<K,V extends NEntity<K>> {
         ExpressionTreeNode root = new ExpressionTreeNode(op);
         root.left = node1;
         root.right = node2;
+        return root;
+    }
+
+    public ExpressionTreeNode getRoot() {
         return root;
     }
 }

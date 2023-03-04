@@ -13,7 +13,7 @@ public enum BooleanBinaryOperator {
     DIFFERENT,
     AND,
     OR,
-    UNKNOW;
+    UNKNOWN;
 
     private static final Set<String> booleanOperators =
             new HashSet<>(Arrays.asList(
@@ -44,8 +44,8 @@ public enum BooleanBinaryOperator {
                 return AND;
             case "||":
                 return OR;
-
+            default:
+                return UNKNOWN;
         }
-        return UNKNOW;
     }
 }

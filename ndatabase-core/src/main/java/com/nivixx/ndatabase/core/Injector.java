@@ -10,10 +10,10 @@ import com.google.inject.TypeLiteral;
  */
 public class Injector {
 
-    private static com.google.inject.Injector injector;
+    private static com.google.inject.Injector googleInjector;
 
     public static <T> T resolveInstance(Class<T> type) {
-        T instance = injector.getInstance(type);
+        T instance = googleInjector.getInstance(type);
         if(instance == null) {
             throw new IllegalArgumentException(String.format("Cannot resolve instance for class type %s", type));
         }
@@ -21,7 +21,7 @@ public class Injector {
     }
 
     public static <T> T resolveInstance(TypeLiteral<T> typeLiteral) {
-        T instance = injector.getInstance(Key.get(typeLiteral));
+        T instance = googleInjector.getInstance(Key.get(typeLiteral));
         if(instance == null) {
             throw new IllegalArgumentException(String.format("Cannot resolve instance for class generic type %s", typeLiteral));
         }
@@ -29,7 +29,7 @@ public class Injector {
     }
 
     public static <T> T resolveInstance(Key<T> key) {
-        T instance = injector.getInstance(key);
+        T instance = googleInjector.getInstance(key);
         if(instance == null) {
             throw new IllegalArgumentException(String.format("Cannot resolve instance for class generic type %s", key));
         }
@@ -37,6 +37,6 @@ public class Injector {
     }
 
     public static void set(com.google.inject.Injector injector) {
-        Injector.injector = injector;
+        Injector.googleInjector = injector;
     }
 }
