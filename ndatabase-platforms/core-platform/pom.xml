@@ -7,17 +7,17 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase-platforms</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>core-platform</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-api</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>1.1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

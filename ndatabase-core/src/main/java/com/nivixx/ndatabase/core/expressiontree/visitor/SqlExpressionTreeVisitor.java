@@ -1,8 +1,11 @@
-package com.nivixx.ndatabase.core.expressiontree;
+package com.nivixx.ndatabase.core.expressiontree.visitor;
 
 import com.nivixx.ndatabase.api.exception.InvalidExpressionException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.core.expressiontree.BooleanBinaryOperator;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTree;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTreeNode;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

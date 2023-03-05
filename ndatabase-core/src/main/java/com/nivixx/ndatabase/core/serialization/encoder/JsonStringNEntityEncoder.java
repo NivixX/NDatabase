@@ -14,9 +14,8 @@ public class JsonStringNEntityEncoder<V extends NEntity<?>> extends NEntityEncod
     private final ObjectMapper objectMapper;
 
     public JsonStringNEntityEncoder() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper = objectMapper;
     }
 
     @Override

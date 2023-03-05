@@ -1,13 +1,11 @@
 package com.nivixx.ndatabase.core;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
-import com.nivixx.ndatabase.api.query.MultiNodePath;
-import com.nivixx.ndatabase.api.query.SingleNodePath;
+import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;

@@ -1,18 +1,15 @@
 package com.nivixx.ndatabase.core.dao.mariadb;
 
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
-import com.nivixx.ndatabase.api.exception.DatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
-import com.nivixx.ndatabase.api.query.SingleNodePath;
+import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
 import com.nivixx.ndatabase.core.dao.jdbc.JdbcDao;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {

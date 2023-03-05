@@ -6,7 +6,6 @@ import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.dao.Dao;
-import com.nivixx.ndatabase.core.expressiontree.ExpressionTreeVisitor;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseEmptyResultPipeline;
 import com.nivixx.ndatabase.core.promise.pipeline.PromiseResultPipeline;

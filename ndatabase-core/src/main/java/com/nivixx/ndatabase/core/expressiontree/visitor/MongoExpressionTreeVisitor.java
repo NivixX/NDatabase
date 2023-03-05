@@ -1,8 +1,12 @@
-package com.nivixx.ndatabase.core.expressiontree;
+package com.nivixx.ndatabase.core.expressiontree.visitor;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.Filters;
+import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.model.NEntity;
+import com.nivixx.ndatabase.core.expressiontree.BooleanBinaryOperator;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTree;
+import com.nivixx.ndatabase.core.expressiontree.ExpressionTreeNode;
 import org.bson.BsonDocument;
 import org.bson.BsonType;
 import org.bson.BsonValue;
@@ -11,8 +15,8 @@ import org.bson.conversions.Bson;
 
 public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends ExpressionTreeVisitor<K,V> {
 
-    private final static String DOCUMENT_VALUE_KEY = "VALUE";
-    private final static String DOCUMENT_FIELD_KEY = "FIELD";
+    private static final String DOCUMENT_VALUE_KEY = "VALUE";
+    private static final String DOCUMENT_FIELD_KEY = "FIELD";
 
     private Bson bson;
 
@@ -82,7 +86,7 @@ public class MongoExpressionTreeVisitor <K,V extends NEntity<K>> extends Express
             case DIFFERENT:
                 return Filters.ne(fieldPath, value);
             default:
-                throw new RuntimeException("failed to parse boolean binary operator for document");
+                throw new NDatabaseException("failed to parse boolean binary operator for document");
         }
     }
 

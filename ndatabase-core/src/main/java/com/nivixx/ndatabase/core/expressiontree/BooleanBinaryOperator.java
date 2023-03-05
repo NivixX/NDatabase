@@ -26,7 +26,7 @@ public enum BooleanBinaryOperator {
         return booleanOperators.contains(token);
     }
 
-    static BooleanBinaryOperator fromToken(String token) {
+    public static BooleanBinaryOperator fromToken(String token) {
         switch(token) {
             case "<":
                 return LESS_THAN;

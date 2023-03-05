@@ -1,7 +1,4 @@
-package com.nivixx.ndatabase.api.query;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.nivixx.ndatabase.core.expressiontree;
 
 public class SingleNodePath {
 

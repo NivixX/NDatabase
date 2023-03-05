@@ -44,7 +44,7 @@ public class MongoDBRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Before
-    public void initApp() throws NDatabaseLoadException, SQLException {
+    public void initApp() throws NDatabaseLoadException {
         running = Mongod.instance().start(Version.Main.PRODUCTION);
         ExecutorService mainThread = Executors.newFixedThreadPool(1);
 
@@ -71,7 +71,7 @@ public class MongoDBRepositoryTest extends AbstractRepositoryTest {
     }
 
     @AfterClass
-    public static void removeSqliteFile() {
+    public static void closeServer() {
         running.close();
     }
 

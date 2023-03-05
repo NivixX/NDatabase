@@ -6,7 +6,6 @@ import com.google.inject.Injector;
 import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
-import com.nivixx.ndatabase.core.config.DatabaseType;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.core.dao.DatabaseConnection;
 import com.nivixx.ndatabase.core.dao.mariadb.HikariMariaConnectionPool;
@@ -62,14 +61,14 @@ public abstract class PlatformLoader extends AbstractModule  {
 
     public void load() throws NDatabaseLoadException {
         try {
-            loadConfigAndDepencies();
+            loadConfigAndDependencies();
             com.nivixx.ndatabase.core.Injector.resolveInstance(DatabaseConnection.class).connect();
         } catch (Throwable t) {
             throw new NDatabaseLoadException("Failed to load NDatabase, error during configuration or loading", t);
         }
     }
 
-    private void loadConfigAndDepencies() throws Throwable{
+    private void loadConfigAndDependencies() throws Throwable {
         // Init dependency injection system
         Injector injector = Guice.createInjector(this);
         com.nivixx.ndatabase.core.Injector.set(injector);

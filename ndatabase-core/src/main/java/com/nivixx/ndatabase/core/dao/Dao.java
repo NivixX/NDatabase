@@ -5,7 +5,7 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.query.NQuery;
-import com.nivixx.ndatabase.api.query.SingleNodePath;
+import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.util.List;
