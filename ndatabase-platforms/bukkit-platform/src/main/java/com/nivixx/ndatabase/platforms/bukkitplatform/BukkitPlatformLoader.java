@@ -1,6 +1,5 @@
 package com.nivixx.ndatabase.platforms.bukkitplatform;
 
-import com.nivixx.ndatabase.core.Injector;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.core.config.*;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
@@ -11,7 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 /**
  * For Spigot/Bukkit based servers
  */
-public class BukkitPlaformLoader extends PlatformLoader {
+public class BukkitPlatformLoader extends PlatformLoader {
 
     @Override
     public DBLogger supplyDbLogger(boolean isDebugMode) {

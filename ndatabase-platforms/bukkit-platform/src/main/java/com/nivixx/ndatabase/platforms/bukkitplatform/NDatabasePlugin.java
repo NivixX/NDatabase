@@ -17,7 +17,7 @@ public class NDatabasePlugin extends JavaPlugin {
     public void onEnable() {
         this.instance = this;
         saveResource("config.yml", false);
-        PlatformLoader plaformLoader = new BukkitPlaformLoader();
+        PlatformLoader plaformLoader = new BukkitPlatformLoader();
         NDatabaseConfig nDatabaseConfig = plaformLoader.supplyNDatabaseConfig();
         Bukkit.getLogger().info(
                 "\n\n" +

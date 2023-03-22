@@ -1,6 +1,8 @@
 package com.nivixx.ndatabase.tests.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.api.annotation.NTable;
 import com.nivixx.ndatabase.api.model.NEntity;
@@ -14,6 +16,10 @@ public class PlayerEntity extends NEntity<UUID> {
 
     @Indexed
     private String name = "name";
+
+    @JsonSerialize(using = PairObject.PairObjectSerializer.class)
+    @JsonDeserialize(using = PairObject.PairObjectDeSerializer.class)
+    private PairObject pairObject;
 
     @Indexed
     @JsonProperty("score")
@@ -35,6 +41,15 @@ public class PlayerEntity extends NEntity<UUID> {
         embeddedObjects = Arrays.asList(new EmbeddedObject(), new EmbeddedObject());
         this.name = name;
         this.playerScore = score;
+    }
+
+
+    public PairObject getPairObject() {
+        return pairObject;
+    }
+
+    public void setPairObject(PairObject pairObject) {
+        this.pairObject = pairObject;
     }
 
     public String getName() {

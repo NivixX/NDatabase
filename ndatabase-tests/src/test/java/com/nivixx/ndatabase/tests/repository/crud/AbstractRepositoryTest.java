@@ -37,6 +37,7 @@ public abstract class AbstractRepositoryTest {
         Assert.assertNotNull(entityFromDb);
     }
 
+
     @Test
     public void insertAndDeleteValueNotPresent() {
         UUID uuid = UUID.randomUUID();
@@ -46,6 +47,18 @@ public abstract class AbstractRepositoryTest {
         PlayerEntity entityFromDb = repository.get(uuid);
         Assert.assertNull(entityFromDb);
     }
+
+    @Test
+    public void insertUsingCustomJsonSerializer() {
+        UUID uuid = UUID.randomUUID();
+        PlayerEntity testEntity = new PlayerEntity(uuid);
+        testEntity.setPairObject(new PairObject("value1","value2"));
+        repository.insert(testEntity);
+        PlayerEntity entityFromDb = repository.get(uuid);
+        Assert.assertEquals("value1", entityFromDb.getPairObject().getValue1());
+        Assert.assertEquals("value2", entityFromDb.getPairObject().getValue2());
+    }
+
 
     @Test(expected = NDatabaseException.class)
     public void insertDoubleKeyException() {

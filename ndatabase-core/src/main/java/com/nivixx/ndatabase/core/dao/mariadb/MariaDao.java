@@ -52,7 +52,7 @@ public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
         String columnName = fieldPath.replaceAll("\\.","_");
         String addColumnQuery = MessageFormat.format(
                 "ALTER TABLE {0} ADD COLUMN {1} {2} GENERATED ALWAYS AS" +
-                        "(JSON_VALUE(`{3}`,''{4}''))",
+                        "(JSON_VALUE(`{3}`,''$.{4}''))",
                 collectionName, columnName, getColumnType(false, fieldType),
                 DATA_IDENTIFIER, fieldPath);
 
