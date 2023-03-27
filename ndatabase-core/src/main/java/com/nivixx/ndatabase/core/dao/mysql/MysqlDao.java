@@ -10,9 +10,10 @@ public class MysqlDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
                     String schema,
                     Class<K> keyType,
                     Class<V> nEntityType,
+                    V instantiatedNEntity,
                     HikariConnectionPool hikariConnectionPool,
                     DBLogger dbLogger) {
-        super(collectionName, schema, keyType, nEntityType, hikariConnectionPool,  dbLogger);
+        super(collectionName, schema, keyType, nEntityType, instantiatedNEntity, hikariConnectionPool,  dbLogger);
     }
 
     // Override here if mysql implementation need more specifications

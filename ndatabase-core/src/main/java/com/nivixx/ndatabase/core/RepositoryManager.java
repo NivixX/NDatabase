@@ -52,7 +52,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         // Index the key-value store
         List<SingleNodePath> indexSingleNodePathList = new ArrayList<>();
         try {
-            resolveIndexedFieldsFromEntity(indexSingleNodePathList, new SingleNodePath(), nEntity);
+            NReflectionUtil.resolveIndexedFieldsFromEntity(indexSingleNodePathList, new SingleNodePath(), nEntity);
         } catch (Exception e) {
             throw new DatabaseCreationException("Failed to resolve nEntity index paths ", e);
         }
@@ -93,26 +93,4 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         }
     }
 
-    private void resolveIndexedFieldsFromEntity(List<SingleNodePath> nodePaths, SingleNodePath parentNode, Object object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            Class<?> type = declaredField.getType();
-            String jsonFieldName = NReflectionUtil.resolveJsonFieldName(declaredField);
-
-            if(declaredField.isAnnotationPresent(Indexed.class)) {
-                SingleNodePath children = new SingleNodePath();
-                children.setPathName(jsonFieldName);
-                children.setType(type);
-                parentNode.setChild(children);
-                nodePaths.add(parentNode);
-                parentNode = new SingleNodePath();
-            }
-            else if(!NReflectionUtil.isNativeJavaClass(type)) {
-                SingleNodePath children = new SingleNodePath();
-                children.setPathName(jsonFieldName);
-                parentNode.setChild(children);
-                resolveIndexedFieldsFromEntity(nodePaths, children, type.getDeclaredConstructor().newInstance());
-            }
-        }
-    }
 }

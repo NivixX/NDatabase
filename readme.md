@@ -8,7 +8,7 @@
   <a><img alt="Stars" src="https://img.shields.io/github/stars/NivixX/NDatabase"></a>
   <a><img alt="jitpack" src="https://jitpack.io/v/NivixX/NDatabase.svg"></a>
   <a><img alt="License" src="https://img.shields.io/github/license/NivixX/NDatabase"></a>
-  <a><img alt="Authors" src="https://visitor-badge.glitch.me/badge?page_id=nivixx.ndatabase"></a>  
+  <a><img alt="Visitor count" src="https://visitor-badge.glitch.me/badge?page_id=nivixx.ndatabase"></a>  
 </p>
 
 # NDatabase 

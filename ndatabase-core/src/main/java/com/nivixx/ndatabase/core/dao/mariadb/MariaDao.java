@@ -18,9 +18,10 @@ public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
                     String schema,
                     Class<K> keyType,
                     Class<V> nEntityType,
+                    V instantiatedNEntity,
                     HikariMariaConnectionPool hikariConnectionPool,
                     DBLogger dbLogger) {
-        super(collectionName, schema, keyType, nEntityType, hikariConnectionPool,  dbLogger);
+        super(collectionName, schema, keyType, nEntityType, instantiatedNEntity, hikariConnectionPool,  dbLogger);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
         }
     }
 
-    private void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
+    protected void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
         SingleNodePath currentNode = singleNodePath;
         String fieldPath = "";
         Class<?> fieldType = null;
@@ -52,7 +53,7 @@ public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
         String columnName = fieldPath.replaceAll("\\.","_");
         String addColumnQuery = MessageFormat.format(
                 "ALTER TABLE {0} ADD COLUMN {1} {2} GENERATED ALWAYS AS" +
-                        "(JSON_VALUE(`{3}`,''$.{4}''))",
+                        "(JSON_VALUE(`{3}`,'$.{4}'))",
                 collectionName, columnName, getColumnType(false, fieldType),
                 DATA_IDENTIFIER, fieldPath);
 

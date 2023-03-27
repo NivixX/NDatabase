@@ -32,9 +32,10 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                    String schema,
                    Class<K> keyType,
                    Class<V> nEntityType,
+                   V instantiatedNEntity,
                    JdbcConnectionPool connectionPoolManager,
                    DBLogger dbLogger) {
-        super(collectionName, schema, keyType, nEntityType, dbLogger);
+        super(collectionName, schema, keyType, nEntityType, instantiatedNEntity, dbLogger);
         this.pool = connectionPoolManager;
         this.byteObjectSerializer = new BytesNEntityEncoder<>();
     }
@@ -250,7 +251,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         }
     }
 
-    private void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
+    protected void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
         SingleNodePath currentNode = singleNodePath;
         String fieldPath = "";
         Class<?> fieldType = null;

@@ -33,6 +33,7 @@ public class DatabaseTypeResolver {
                         nTable.schema(),
                         keyType,
                         nEntityType,
+                        nEntity,
                         hikariConnectionPool,
                         dbLogger);
             case MARIADB:
@@ -42,6 +43,7 @@ public class DatabaseTypeResolver {
                         nTable.schema(),
                         keyType,
                         nEntityType,
+                        nEntity,
                         hikariConnectionPoolMaria,
                         dbLogger);
             case SQLITE:
@@ -51,6 +53,7 @@ public class DatabaseTypeResolver {
                         nTable.schema(),
                         keyType,
                         nEntityType,
+                        nEntity,
                         sqliteConnectionPool,
                         dbLogger);
             case MONGODB:
@@ -60,6 +63,7 @@ public class DatabaseTypeResolver {
                         nTable.schema(),
                         keyType,
                         nEntityType,
+                        nEntity,
                         mongodbConnection,
                         dbLogger
                 );

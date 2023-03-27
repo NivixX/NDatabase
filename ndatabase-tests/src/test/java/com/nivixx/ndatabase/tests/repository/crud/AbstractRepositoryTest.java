@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractRepositoryTest {
 
@@ -278,6 +279,7 @@ public abstract class AbstractRepositoryTest {
         PlayerEntity player1 = new PlayerEntity(player1Id, "name1", 10);
         repository.insert(player1);
         NQuery.Predicate expression = NQuery.predicate("$.name != name1");
+        List<PlayerEntity> collect = repository.streamAllValues().collect(Collectors.toList());
         Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
         Assert.assertFalse(playerWith25Score.isPresent());
     }
