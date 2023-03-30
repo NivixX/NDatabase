@@ -53,7 +53,7 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
                     .map(Map.Entry::getValue).collect(Collectors.toList());
             String columnNames = DATA_KEY_IDENTIFIER + "," + DATA_IDENTIFIER;
             String columnWildCards = "?,?";
-            String valueNames = DATA_IDENTIFIER + " = ?, ";
+            String valueNames = DATA_IDENTIFIER + " = ?,";
             for (String columnName : columnNameList) {
                 columnNames += "," + columnName;
                 columnWildCards += "," + "?";

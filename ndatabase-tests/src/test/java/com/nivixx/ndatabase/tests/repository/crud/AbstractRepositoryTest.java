@@ -18,6 +18,7 @@ public abstract class AbstractRepositoryTest {
 
     protected PlatformLoader appPlatformLoader;
     protected Repository<UUID, PlayerEntity> repository;
+    protected Repository<UUID, PlayerEntityNoIndex> repositoryNoIndex;
 
     public AbstractRepositoryTest() { }
 
@@ -447,4 +448,32 @@ public abstract class AbstractRepositoryTest {
     }
 
 
+    // CRUD with an NEntity that not contains an index
+
+    @Test
+    public void noIndex_insert() {
+        PlayerEntityNoIndex data = new PlayerEntityNoIndex(UUID.randomUUID(), "name", 10);
+        repositoryNoIndex.insert(data);
+    }
+
+    @Test
+    public void noIndex_upsert() {
+        PlayerEntityNoIndex data = new PlayerEntityNoIndex(UUID.randomUUID(), "name", 10);
+        repositoryNoIndex.upsert(data);
+    }
+
+    @Test
+    public void noIndex_delete() {
+        PlayerEntityNoIndex data = new PlayerEntityNoIndex(UUID.randomUUID(), "name", 10);
+        repositoryNoIndex.upsert(data);
+        repositoryNoIndex.delete(data);
+    }
+
+    @Test
+    public void noIndex_get() {
+        PlayerEntityNoIndex data = new PlayerEntityNoIndex(UUID.randomUUID(), "name", 10);
+        repositoryNoIndex.upsert(data);
+        PlayerEntityNoIndex playerEntityNoIndex = repositoryNoIndex.get(data.getKey());
+        Assert.assertNotNull(playerEntityNoIndex);
+    }
 }

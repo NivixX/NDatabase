@@ -17,6 +17,7 @@ import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
+import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.mongo.transitions.Mongod;
 import de.flapdoodle.embed.mongo.transitions.MongodStarter;
@@ -68,6 +69,7 @@ public class MongoDBRepositoryTest extends AbstractRepositoryTest {
         };
         appPlatformLoader.load();
         repository = NDatabase.api().getOrCreateRepository(PlayerEntity.class);
+        repositoryNoIndex = NDatabase.api().getOrCreateRepository(PlayerEntityNoIndex.class);
     }
 
     @AfterClass
