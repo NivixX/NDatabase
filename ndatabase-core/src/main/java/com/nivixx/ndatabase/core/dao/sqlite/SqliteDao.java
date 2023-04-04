@@ -66,8 +66,8 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
             connection = pool.getConnection();
             String query = MessageFormat.format(
                     "INSERT INTO {0} ({1}) VALUES({2})" +
-                            " ON CONFLICT DO UPDATE SET {3}"
-                    , collectionName, columnNames, columnWildCards, valueNames);
+                            " ON CONFLICT({3}) DO UPDATE SET {4}"
+                    , collectionName, columnNames, columnWildCards, DATA_KEY_IDENTIFIER, valueNames);
             ps = connection.prepareStatement(query);
 
             byte[] valueBytes = byteObjectSerializer.encode(value);
