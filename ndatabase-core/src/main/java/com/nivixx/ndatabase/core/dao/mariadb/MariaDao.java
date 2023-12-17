@@ -38,19 +38,13 @@ public class MariaDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
     }
 
     protected void denormalizeFieldIntoColumn(Connection connection, SingleNodePath singleNodePath) throws SQLException {
-        SingleNodePath currentNode = singleNodePath;
-        String fieldPath = "";
-        Class<?> fieldType = null;
-        while(currentNode != null) {
-            fieldPath = fieldPath.isEmpty() ? currentNode.getPathName() : fieldPath + "." + currentNode.getPathName();
-            currentNode = currentNode.getChild();
-            if(currentNode != null) {
-                fieldType = currentNode.getType();
-            }
-        }
+
         // path.to.field
         // MYSQL doesn't allow "." in column names
-        String columnName = fieldPath.replaceAll("\\.","_");
+        String columnName = singleNodePath.getFullPath("_");
+        String fieldPath = singleNodePath.getFullPath(".");
+        Class<?> fieldType = singleNodePath.getLastNodeType();
+
         String addColumnQuery = MessageFormat.format(
                 "ALTER TABLE {0} ADD COLUMN {1} {2} GENERATED ALWAYS AS" +
                         "(JSON_VALUE(`{3}`,'$.{4}'))",

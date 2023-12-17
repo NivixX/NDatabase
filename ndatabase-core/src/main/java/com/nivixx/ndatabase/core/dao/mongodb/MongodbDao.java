@@ -188,21 +188,12 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
 
     @Override
     public void createIndexes(List<SingleNodePath> singleNodePaths) throws DatabaseCreationException {
-        List<String> fullPathsToIndex = new ArrayList<>();
-        for (SingleNodePath singleNodePath : singleNodePaths) {
-            SingleNodePath currentNode = singleNodePath;
-            String path = "";
-            while(currentNode != null) {
-                path = path.isEmpty() ? currentNode.getPathName() : path + "." + currentNode.getPathName();
-                currentNode = currentNode.getChild();
-            }
-            fullPathsToIndex.add(path);
-        }
-
-        for (String pathsToIndex : fullPathsToIndex) {
-            getCollection().createIndex(Indexes.ascending(pathsToIndex));
-            dbLogger.logDebug("Created index if not exists " + pathsToIndex);
-        }
+        singleNodePaths.stream()
+                .map(singleNodePath -> singleNodePath.getFullPath("."))
+                .forEach(fullFieldPathToIndex -> {
+                    getCollection().createIndex(Indexes.ascending(fullFieldPathToIndex));
+                    dbLogger.logDebug("Created index if not exists " + fullFieldPathToIndex);
+                });
     }
 
     @Override

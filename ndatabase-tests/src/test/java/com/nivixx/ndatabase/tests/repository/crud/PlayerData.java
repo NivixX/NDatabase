@@ -15,8 +15,20 @@ public class PlayerData extends NEntity<UUID> {
     @Indexed
     private int coins;
 
+    @JsonProperty("name")
+    @Indexed
+    private String name;
+
     public PlayerData() {
 
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getCoins() {

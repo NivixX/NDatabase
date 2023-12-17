@@ -29,8 +29,8 @@ public class NReflectionUtil {
         return type.isPrimitive() || type.isEnum() || type.getPackage().getName().startsWith("java.");
     }
 
-    public static void resolveIndexedFieldsFromEntity(List<SingleNodePath> nodePaths, SingleNodePath parentNode, Object object) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
+    public static void resolveIndexedFieldsFromEntity(List<SingleNodePath> nodePaths, SingleNodePath parentNode, Object entity) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        Field[] declaredFields = entity.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             Class<?> type = declaredField.getType();
             String jsonFieldName = NReflectionUtil.resolveJsonFieldName(declaredField);
