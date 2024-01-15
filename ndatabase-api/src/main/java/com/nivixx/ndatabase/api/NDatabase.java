@@ -23,8 +23,8 @@ public class NDatabase {
         }
     }
 
-    // Not setable trough the API, will be set by the core
-    static void set(NDatabaseAPI impl) {
+    // Note: the NDatabaseAPI instance is set by the core module after loaded
+    private static void set(NDatabaseAPI impl) {
         instance = impl;
     }
 
