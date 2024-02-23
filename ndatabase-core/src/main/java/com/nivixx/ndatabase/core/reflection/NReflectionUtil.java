@@ -2,10 +2,13 @@ package com.nivixx.ndatabase.core.reflection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nivixx.ndatabase.api.annotation.Indexed;
+import com.nivixx.ndatabase.core.Injector;
 import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
+import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 import java.util.List;
 
 public class NReflectionUtil {
@@ -35,7 +38,8 @@ public class NReflectionUtil {
             Class<?> type = declaredField.getType();
             String jsonFieldName = NReflectionUtil.resolveJsonFieldName(declaredField);
 
-            if(declaredField.isAnnotationPresent(Indexed.class)) {
+
+            if (declaredField.isAnnotationPresent(Indexed.class)) {
                 SingleNodePath children = new SingleNodePath();
                 children.setPathName(jsonFieldName);
                 children.setType(type);
@@ -43,12 +47,23 @@ public class NReflectionUtil {
                 nodePaths.add(parentNode);
                 parentNode = new SingleNodePath();
             }
-            else if(!NReflectionUtil.isNativeJavaClass(type)) {
+            else if (!NReflectionUtil.isNativeJavaClass(type)) {
+                if (!hasDefaultConstructor(type)) continue;
                 SingleNodePath children = new SingleNodePath();
                 children.setPathName(jsonFieldName);
                 parentNode.setChild(children);
                 resolveIndexedFieldsFromEntity(nodePaths, children, type.getDeclaredConstructor().newInstance());
             }
+        }
+    }
+
+    private static boolean hasDefaultConstructor(Class<?> type) {
+        try {
+            type.getDeclaredConstructor();
+            return true;
+        }
+        catch (Exception e) {
+            return false;
         }
     }
 }

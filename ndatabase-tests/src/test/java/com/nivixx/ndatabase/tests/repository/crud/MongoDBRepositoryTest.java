@@ -15,6 +15,7 @@ import com.nivixx.ndatabase.core.config.SqliteConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
+import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
@@ -70,6 +71,7 @@ public class MongoDBRepositoryTest extends AbstractRepositoryTest {
         appPlatformLoader.load();
         repository = NDatabase.api().getOrCreateRepository(PlayerEntity.class);
         repositoryNoIndex = NDatabase.api().getOrCreateRepository(PlayerEntityNoIndex.class);
+        repositoryEmbeddedBukkitLocation = NDatabase.api().getOrCreateRepository(EmbeddedBukkitLocation.class);
     }
 
     @AfterClass

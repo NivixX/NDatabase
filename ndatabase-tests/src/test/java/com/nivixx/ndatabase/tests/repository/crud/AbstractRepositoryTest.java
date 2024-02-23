@@ -6,6 +6,8 @@ import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.tests.repository.entity.*;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,11 +16,15 @@ import org.junit.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public abstract class AbstractRepositoryTest {
 
     protected PlatformLoader appPlatformLoader;
     protected Repository<UUID, PlayerEntity> repository;
     protected Repository<UUID, PlayerEntityNoIndex> repositoryNoIndex;
+    protected Repository<UUID, EmbeddedBukkitLocation> repositoryEmbeddedBukkitLocation;
 
     public AbstractRepositoryTest() { }
 
@@ -467,6 +473,7 @@ public abstract class AbstractRepositoryTest {
         PlayerEntityNoIndex data = new PlayerEntityNoIndex(UUID.randomUUID(), "name", 10);
         repositoryNoIndex.upsert(data);
         repositoryNoIndex.delete(data);
+        Assert.assertNull(repositoryNoIndex.get(data.getKey()));
     }
 
     @Test
@@ -475,5 +482,51 @@ public abstract class AbstractRepositoryTest {
         repositoryNoIndex.upsert(data);
         PlayerEntityNoIndex playerEntityNoIndex = repositoryNoIndex.get(data.getKey());
         Assert.assertNotNull(playerEntityNoIndex);
+    }
+
+    @Test
+    public void embeddedBukkitObject_insert() {
+        EmbeddedBukkitLocation data = buildMockedLocation();
+        repositoryEmbeddedBukkitLocation.insert(data);
+    }
+    @Test
+    public void embeddedBukkitObject_upsert() {
+        EmbeddedBukkitLocation data = buildMockedLocation();
+        repositoryEmbeddedBukkitLocation.upsert(data);
+    }
+
+    @Test
+    public void embeddedBukkitObject_get() {
+        EmbeddedBukkitLocation data = buildMockedLocation();
+        repositoryEmbeddedBukkitLocation.upsert(data);
+        EmbeddedBukkitLocation savedData = repositoryEmbeddedBukkitLocation.get(data.getKey());
+        Assert.assertNotNull(savedData);
+        Assert.assertNotNull(data.getLocation());
+        Assert.assertNotNull(savedData.getLocation());
+        Assert.assertNotNull(data.getLocation().getWorld());
+        Assert.assertNotNull(savedData.getLocation().getWorld());
+        Assert.assertEquals(data.getLocation().getWorld().getName(), savedData.getLocation().getWorld().getName());
+        Assert.assertEquals(data.getLocation().getX(), savedData.getLocation().getX(), 0.0);
+        Assert.assertEquals(data.getLocation().getY(), savedData.getLocation().getY(), 0.0);
+        Assert.assertEquals(data.getLocation().getZ(), savedData.getLocation().getZ(), 0.0);
+        Assert.assertEquals(data.getLocation().getYaw(), savedData.getLocation().getYaw(), 0.0);
+        Assert.assertEquals(data.getLocation().getPitch(), savedData.getLocation().getPitch(), 0.0);
+    }
+
+    private EmbeddedBukkitLocation buildMockedLocation() {
+        World world = mock(World.class);
+        when(world.getName()).thenReturn("worldName");
+
+        double x = 32, y = 64, z = 32;
+        float yawl = 50, pitch = 55;
+        Location location = mock(Location.class);
+        when(location.getWorld()).thenReturn(world);
+        when(location.getX()).thenReturn(x);
+        when(location.getY()).thenReturn(y);
+        when(location.getZ()).thenReturn(z);
+        when(location.getYaw()).thenReturn(yawl);
+        when(location.getPitch()).thenReturn(pitch);
+        UUID uuid = UUID.randomUUID();
+        return new EmbeddedBukkitLocation(uuid, location);
     }
 }
