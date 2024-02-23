@@ -54,7 +54,7 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         try {
             NReflectionUtil.resolveIndexedFieldsFromEntity(indexSingleNodePathList, new SingleNodePath(), nEntity);
         } catch (Exception e) {
-            //TODO throw new DatabaseCreationException("Failed to resolve nEntity index paths ", e);
+            throw new DatabaseCreationException("Failed to resolve nEntity index paths ", e);
         }
         dao.createIndexes(indexSingleNodePathList);
 
