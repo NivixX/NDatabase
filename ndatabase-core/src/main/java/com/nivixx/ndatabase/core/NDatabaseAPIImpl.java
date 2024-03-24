@@ -11,9 +11,8 @@ public class NDatabaseAPIImpl implements NDatabaseAPI {
 
     private final RepositoryManager bloodyDaoManager;
 
-    @Inject
-    public NDatabaseAPIImpl(RepositoryManager bloodyDaoManager) {
-        this.bloodyDaoManager = bloodyDaoManager;
+    public NDatabaseAPIImpl() {
+        this.bloodyDaoManager = new RepositoryManager<>();
     }
 
     public <K,V extends NEntity<K>> Repository<K,V> getOrCreateRepository(Class<V> entityType) throws NDatabaseException {

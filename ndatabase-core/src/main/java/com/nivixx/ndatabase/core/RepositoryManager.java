@@ -28,10 +28,9 @@ public class RepositoryManager<K,V extends NEntity<K>> {
 
     private final DatabaseTypeResolver databaseTypeResolver;
 
-    @Inject
-    public RepositoryManager(DatabaseTypeResolver databaseTypeResolver) {
+    public RepositoryManager() {
         this.repositoryCache = new ConcurrentHashMap<>();
-        this.databaseTypeResolver = databaseTypeResolver;
+        this.databaseTypeResolver = new DatabaseTypeResolver();
     }
 
     public Repository<K,V> getOrCreateRepository(Class<V> entityType) throws NDatabaseException {

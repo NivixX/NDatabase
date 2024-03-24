@@ -18,7 +18,7 @@ import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.reflect.Method;
 
-public abstract class PlatformLoader extends AbstractModule  {
+public abstract class PlatformLoader extends AbstractModule {
 
     @Override
     protected void configure() {
@@ -56,7 +56,7 @@ public abstract class PlatformLoader extends AbstractModule  {
         bind(NDatabaseConfig.class).toInstance(nDatabaseConfig);
 
         bind(AsyncThreadPool.class).toInstance(new AsyncThreadPool(nDatabaseConfig.getIdleThreadPoolSize()));
-        bind(NDatabaseAPI.class).to(NDatabaseAPIImpl.class);
+        bind(NDatabaseAPI.class).toInstance(new NDatabaseAPIImpl());
     }
 
     public void load() throws NDatabaseLoadException {
@@ -78,7 +78,10 @@ public abstract class PlatformLoader extends AbstractModule  {
         Class<NDatabase> clazz = NDatabase.class;
         Method method = clazz.getDeclaredMethod("set", NDatabaseAPI.class);
         method.setAccessible(true);
-        method.invoke(null, injector.getInstance(NDatabaseAPI.class));
+
+        NDatabaseAPI instance = injector.getInstance(NDatabaseAPI.class);
+
+        method.invoke(null, instance);
     }
 
     public abstract DBLogger supplyDbLogger(boolean isDebugMode);
