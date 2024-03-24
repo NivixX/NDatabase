@@ -19,7 +19,7 @@ It can be used as a plugin, so you can install it once and use it everywhere wit
 main thread callback with [async to sync](#fluent-async-to-sync-API) mechanism. NDatabase can support multiple databases (currently MySQL, MariaDB, SQLite, and MongoDB implementation).
 NDatabase can support java 8 from 18 and higher and all minecraft server version (tested from 1.8 to 1.19+).
 
-[**NDatabase WIKI**](https://github.com/NivixX/NDatabase/wiki)
+[**NDatabase WIKI**](https://github.com/NivixX/NDatabase/wiki) - [Spigot page](https://www.spigotmc.org/resources/ndatabase-fast-data-model-creation-powerful-async-sync-api.107793/)
 
 ## Benefits of using NDatabase
 * **Fast to use, you don't have to write any Repository class or write SQL:** this framework is designed in a way that you just have to create your data model object (DTO) and a fully usable repository will be created automatically. See [NDatabase Installation & Quickstart](https://github.com/NivixX/NDatabase/wiki/C.-Installation-&-Quickstart-in-5-minutes)
