@@ -1,4 +1,3 @@
-/*
 package com.nivixx.ndatabase.tests.repository.crud;
 
 import com.nivixx.ndatabase.api.NDatabase;
@@ -11,22 +10,46 @@ import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
+import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
+import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MySqlRepositoryTest extends AbstractRepositoryTest {
-    public MySqlRepositoryTest() {
+public class ModernMySqlRepositoryTest extends AbstractRepositoryTest {
+
+
+    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>(DockerImageName.parse("mysql:8.3.0"))
+            .withUsername("test")
+            .withPassword("test")
+            .withDatabaseName("test");
+
+
+    public ModernMySqlRepositoryTest() {
+    }
+
+    @BeforeClass
+    public static void initContainer() {
+        mysqlContainer.start();
+    }
+
+    @AfterClass
+    public static void stopContainer() {
+        mysqlContainer.stop();
     }
 
     @Before
     public void initApp() throws NDatabaseLoadException, SQLException {
-        String jdbcURL = "jdbc:h2:mem:test;MODE=MYSQL";
+        String jdbcURL = mysqlContainer.getJdbcUrl();
         ExecutorService mainThread = Executors.newFixedThreadPool(1);
 
         appPlatformLoader = new AppPlatformLoader() {
@@ -40,10 +63,10 @@ public class MySqlRepositoryTest extends AbstractRepositoryTest {
                 AppNDatabaseConfig bukkitNDatabaseConfig = new AppNDatabaseConfig();
                 MysqlConfig mysqlConfig = new MysqlConfig();
                 mysqlConfig.setHost(jdbcURL);
-                mysqlConfig.setClassName("org.h2.Driver");
+                mysqlConfig.setClassName("com.mysql.jdbc.Driver");
                 mysqlConfig.setDatabaseName("");
-                mysqlConfig.setPass("");
-                mysqlConfig.setUser("");
+                mysqlConfig.setPass("test");
+                mysqlConfig.setUser("test");
                 bukkitNDatabaseConfig.setDatabaseType(DatabaseType.MYSQL);
                 bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
                 return bukkitNDatabaseConfig;
@@ -51,6 +74,8 @@ public class MySqlRepositoryTest extends AbstractRepositoryTest {
         };
         appPlatformLoader.load();
         repository = NDatabase.api().getOrCreateRepository(PlayerEntity.class);
+        repositoryNoIndex = NDatabase.api().getOrCreateRepository(PlayerEntityNoIndex.class);
+        repositoryEmbeddedBukkitLocation = NDatabase.api().getOrCreateRepository(EmbeddedBukkitLocation.class);
     }
 
     @Test(expected = NDatabaseException.class)
@@ -60,4 +85,3 @@ public class MySqlRepositoryTest extends AbstractRepositoryTest {
         integerKeyDao.insert(new InvalidKeyTypeEntity(null));
     }
 }
-*/

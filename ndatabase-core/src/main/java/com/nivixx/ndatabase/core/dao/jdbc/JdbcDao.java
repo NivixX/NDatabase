@@ -3,11 +3,14 @@ package com.nivixx.ndatabase.core.dao.jdbc;
 import com.nivixx.ndatabase.api.exception.*;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.query.NQuery;
+import com.nivixx.ndatabase.core.dao.mysql.adapter.MySQLAdapter;
+import com.nivixx.ndatabase.core.dao.mysql.adapter.MySQLAdapterResolver;
 import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
 import com.nivixx.ndatabase.core.dao.Dao;
 import com.nivixx.ndatabase.core.expressiontree.ExpressionTree;
 import com.nivixx.ndatabase.core.expressiontree.visitor.SqlExpressionTreeVisitor;
 import com.nivixx.ndatabase.core.serialization.encoder.BytesNEntityEncoder;
+import com.nivixx.ndatabase.core.serialization.encoder.JsonStringNEntityEncoder;
 import com.nivixx.ndatabase.core.serialization.encoder.NEntityEncoder;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
@@ -26,6 +29,9 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
     protected final String DATA_IDENTIFIER = "data";
     protected final String DATA_KEY_IDENTIFIER = "data_key";
     protected NEntityEncoder<V, byte[]> byteObjectSerializer;
+    protected NEntityEncoder<V, String> jsonStringObjectSerializer;
+
+    protected MySQLAdapter mySQLAdapter;
 
 
     public JdbcDao(String collectionName,
@@ -38,6 +44,16 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         super(collectionName, schema, keyType, nEntityType, instantiatedNEntity, dbLogger);
         this.pool = connectionPoolManager;
         this.byteObjectSerializer = new BytesNEntityEncoder<>();
+        this.jsonStringObjectSerializer = new JsonStringNEntityEncoder<>();
+    }
+
+    @Override
+    public void init() throws DatabaseCreationException {
+        try (Connection connection = pool.getConnection()) {
+            mySQLAdapter = MySQLAdapterResolver.resolveMySQLAdapter(connection);
+        } catch (Exception e) {
+            throw new DatabaseCreationException("Failed to resolve adapter for MySQL", e);
+        }
     }
 
     @Override
@@ -51,7 +67,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                     "INSERT INTO " + collectionName + "(" + DATA_KEY_IDENTIFIER + "," + DATA_IDENTIFIER + ") VALUES(?,?)"
             );
             bindKeyToStatement(ps,1, key);
-            ps.setObject(2, byteObjectSerializer.encode(value));
+            ps.setString(2, jsonStringObjectSerializer.encode(value));
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -72,10 +88,10 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             ps = connection.prepareStatement(
                     "INSERT INTO " + collectionName + "(" + DATA_KEY_IDENTIFIER + "," + DATA_IDENTIFIER + ") VALUES(?,?) ON DUPLICATE KEY UPDATE " + DATA_IDENTIFIER + " = ?"
             );
-            byte[] valueBytes = byteObjectSerializer.encode(value);
+            String valueJson = jsonStringObjectSerializer.encode(value);
             bindKeyToStatement(ps,1, key);
-            ps.setObject(2, valueBytes);
-            ps.setObject(3, valueBytes);
+            ps.setObject(2, valueJson);
+            ps.setObject(3, valueJson);
             ps.executeUpdate();
         } catch (Exception e) {
             throw new DatabaseException(e);
@@ -133,7 +149,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
                     collectionName, DATA_IDENTIFIER, DATA_KEY_IDENTIFIER);
             ps = connection.prepareStatement(updateQuery);
 
-            ps.setObject(1, byteObjectSerializer.encode(value));
+            ps.setString(1, jsonStringObjectSerializer.encode(value));
             bindKeyToStatement(ps,2, key);
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
@@ -275,13 +291,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             }
         }
 
-        // Index this column if not exist
-        String createIndexQuery = MessageFormat.format(
-                "CREATE INDEX IF NOT EXISTS {0}_index ON {1}({2})",
-                columnName, collectionName, columnName);
-        try (PreparedStatement ps = connection.prepareStatement(createIndexQuery)) {
-            ps.execute();
-        }
+        mySQLAdapter.createIndexIfNotExist(collectionName, columnName, fieldType, connection);
     }
 
     @Override
@@ -382,14 +392,14 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
         }
         if(type.isAssignableFrom(String.class)) {
             if(isForKey) {
-                return "VARCHAR(1200)"; // TODO manage max row size
+                return "VARCHAR(255)"; // max value in mysql for key
             }
             else {
                 return "TEXT";
             }
         }
         if(type.isAssignableFrom(Long.class) ||  type.getName().equals("long")) {
-            return "LONG";
+            return "BIGINT";
         }
         if(type.isAssignableFrom(Integer.class) || type.getName().equals("int")) {
             return "INTEGER";

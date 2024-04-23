@@ -45,6 +45,9 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         // Find configured database type (MYSQL, MongoDB, ...)
         Dao<K,V> dao = databaseTypeResolver.getDaoForConfiguredDatabase(nEntity, keyType, entityType);
 
+        // Init stuff for target DB if needed
+        dao.init();
+
         // Create the database/schema structure if doesn't exist
         dao.createDatabaseIfNotExist(keyType);
 

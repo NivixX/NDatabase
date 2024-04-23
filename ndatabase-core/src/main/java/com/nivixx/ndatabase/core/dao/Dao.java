@@ -37,6 +37,10 @@ public abstract class Dao<K, V extends NEntity<K>> {
         this.schema = schema;
     }
 
+    public void init() throws DatabaseCreationException {
+        // Do nothing by default
+    }
+
 
     public abstract void insert(V value) throws NDatabaseException;
 
