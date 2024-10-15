@@ -48,7 +48,7 @@ That's why you should always process heavy task and I/O task __*asynchronously*_
 
 In the scenario where you want to retrieve data asynchronously and use it inside your game context, you can do that by using the bukkit __*scheduler*__. The idea is to get the data in another thread and then schedule in the main thread, a task that is consuming your retrived data. It's doable by using the Bukkit methods but NDatabase provide you a fluent API to do that.
 
-Here is two examples:
+> Async and Sync examples:
 ```java
 Repository<String, BlockDTO> blockRepository = NDatabase.api().getOrCreateRepository(BlockDTO.class);
 // Async to Sync (get data async and consume it in the main thread)
@@ -72,6 +72,12 @@ playerRepository.getAsync(joinedPlayer.getUUID())
             loadPlayer(playerDTO);
         });
 ```
+
+> Query Example : Get best players, which have score >= 100 or a specific discord id
+```java
+List<PlayerData> bestPlayers = repository.find(NQuery.predicate("$.statistics.score >= 100 || $.discordId == 3432487284963298"));
+```
+
 <img src="https://i.imgur.com/q43cdhp.jpg" alt="drawing"/>
 
 * **Async to sync**: in the first example we retrieve the data of a block asynchronously, as we know we should not change the game state asynchronously, we give a consumer callback that will be scheduled and run in the main thread. This approach __*doesn't affect main thread's performances*__ as we retrieve the data in another thread.
