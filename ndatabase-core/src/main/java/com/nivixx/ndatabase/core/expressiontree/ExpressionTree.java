@@ -14,6 +14,18 @@ public class ExpressionTree<K,V extends NEntity<K>> {
 
     private final Class<V> nEntityClass;
     private final ExpressionTreeNode root;
+    private static final List<String> operandChars = Arrays.asList(
+            "$",
+            "==",
+            "!=",
+            "||",
+            "&&",
+            ">=",
+            "<=",
+            ">",
+            "<",
+            "(",")"
+    );
 
     public ExpressionTree(Class<V> nEntityClass, ExpressionTreeNode firstNode) {
         this.nEntityClass = nEntityClass;
@@ -73,8 +85,6 @@ public class ExpressionTree<K,V extends NEntity<K>> {
         }
         return false;
     }
-
-    private static List<String> operandChars = Arrays.asList("$","==","!=","||","&&",">=", "<=", ">","<", "(",")");
 
     private static List<String> splitExpression(String expression) {
         List<String> tokens = new ArrayList<>();

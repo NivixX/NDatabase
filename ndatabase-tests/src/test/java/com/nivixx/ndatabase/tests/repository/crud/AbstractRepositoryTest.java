@@ -7,6 +7,7 @@ import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.tests.repository.entity.*;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.junit.After;
 import org.junit.Assert;
@@ -289,6 +290,28 @@ public abstract class AbstractRepositoryTest {
         List<PlayerEntity> collect = repository.streamAllValues().collect(Collectors.toList());
         Optional<PlayerEntity> playerWith25Score = repository.findOne(expression);
         Assert.assertFalse(playerWith25Score.isPresent());
+    }
+
+    @Test
+    public void insert_and_increment_and_then_get() {
+        Repository<String, BlockStatistics> repo = NDatabase.api().getOrCreateRepository(BlockStatistics.class);
+        String diamond = Material.DIAMOND.toString();
+        BlockStatistics blockStatistics = new BlockStatistics();
+        blockStatistics.setKey(diamond);
+        blockStatistics.setMaterialType(diamond);
+
+        // insert
+        repo.insert(blockStatistics);
+
+        // increment break
+        BlockStatistics diamondBlockStats = repo.get(diamond);
+        diamondBlockStats.setBreakCount(diamondBlockStats.getBreakCount()+1);
+        repo.update(diamondBlockStats);
+
+        // search by diamond and breakCount >= 1
+        Optional<BlockStatistics> search =
+                repo.findOne(NQuery.predicate("$.materialType == DIAMOND && $.breakCount >= 1"));
+        assert search.isPresent();
     }
 
     @Test
