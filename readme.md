@@ -8,7 +8,6 @@
   <a><img alt="Stars" src="https://img.shields.io/github/stars/NivixX/NDatabase"></a>
   <a><img alt="jitpack" src="https://jitpack.io/v/NivixX/NDatabase.svg"></a>
   <a><img alt="License" src="https://img.shields.io/github/license/NivixX/NDatabase"></a>
-  <a><img alt="Visitor count" src="https://visitor-badge.glitch.me/badge?page_id=nivixx.ndatabase"></a>  
 </p>
 
 # NDatabase 
@@ -20,6 +19,8 @@ main thread callback with [async to sync](#fluent-async-to-sync-API) mechanism. 
 NDatabase can support java 8 from 18 and higher and all minecraft server version (tested from 1.8 to 1.19+).
 
 [**NDatabase WIKI**](https://github.com/NivixX/NDatabase/wiki) - [Spigot page](https://www.spigotmc.org/resources/ndatabase-fast-data-model-creation-powerful-async-sync-api.107793/)
+
+I used NDatabase in my own server that could handle 500 concurrent players, you can have more interesting technical details [in this repo](https://github.com/NivixX/BloodyBattle)
 
 ## Benefits of using NDatabase
 * **Fast to use, you don't have to write any Repository class or write SQL:** this framework is designed in a way that you just have to create your data model object (DTO) and a fully usable repository will be created automatically. See [NDatabase Installation & Quickstart](https://github.com/NivixX/NDatabase/wiki/C.-Installation-&-Quickstart-in-5-minutes)
