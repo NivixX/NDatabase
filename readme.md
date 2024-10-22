@@ -21,6 +21,8 @@ NDatabase can support java 8 from 18 and higher and all minecraft server version
 
 [**NDatabase WIKI**](https://github.com/NivixX/NDatabase/wiki) - [Spigot page](https://www.spigotmc.org/resources/ndatabase-fast-data-model-creation-powerful-async-sync-api.107793/)
 
+I used NDatabase in my own server that could handle 500 concurrent players, check more technical details [in this repo](https://github.com/NivixX/BloodyBattle)
+
 ## Benefits of using NDatabase
 * **Fast to use, you don't have to write any Repository class or write SQL:** this framework is designed in a way that you just have to create your data model object (DTO) and a fully usable repository will be created automatically. See [NDatabase Installation & Quickstart](https://github.com/NivixX/NDatabase/wiki/C.-Installation-&-Quickstart-in-5-minutes)
 * **Install once, use it everywhere:** It's obvious that a server always have a lot of plugins, most of them require a database, and you need to re-implement, and configure your database for every plugin. Connection pool duplication cost a lot of resources. With NDatabase, you just install the plugin once, and you can use the API in every plugins without configuration needed.
