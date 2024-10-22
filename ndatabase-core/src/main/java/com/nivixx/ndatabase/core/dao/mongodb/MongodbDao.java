@@ -9,10 +9,7 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
-import com.nivixx.ndatabase.api.exception.NDatabaseException;
-import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
-import com.nivixx.ndatabase.api.exception.NEntityNotFoundException;
+import com.nivixx.ndatabase.api.exception.*;
 import com.nivixx.ndatabase.api.model.NEntity;
 import com.nivixx.ndatabase.api.query.NQuery;
 import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
@@ -169,11 +166,12 @@ public class MongodbDao<K, V extends NEntity<K>> extends Dao<K, V> {
     }
 
     @Override
-    public void validateConnection() throws NDatabaseLoadException {
+    public void validateConnection() throws DatabaseConnectionException {
         try {
-            mongodbConnection.connect();
+            mongodbConnection.getDatabase().getCollection("system.version")
+                    .countDocuments();
         } catch (Exception e) {
-            throw new NDatabaseLoadException("Failed to connect to MongoDB database", e);
+            throw new DatabaseConnectionException("Failed to connect to MongoDB database", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.nivixx.ndatabase.core.dao;
 
+import com.nivixx.ndatabase.api.exception.DatabaseConnectionException;
 import com.nivixx.ndatabase.api.exception.DatabaseCreationException;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
@@ -61,7 +62,7 @@ public abstract class Dao<K, V extends NEntity<K>> {
 
     public abstract List<V> find(Predicate<V> predicate, Class<V> classz) throws NDatabaseException;
 
-    public abstract void validateConnection() throws NDatabaseLoadException;
+    public abstract void validateConnection() throws DatabaseConnectionException;
 
     public abstract void createDatabaseIfNotExist(Class<K> keyType) throws DatabaseCreationException;
 

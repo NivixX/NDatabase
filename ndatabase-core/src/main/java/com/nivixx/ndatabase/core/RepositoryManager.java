@@ -48,6 +48,9 @@ public class RepositoryManager<K,V extends NEntity<K>> {
         // Init stuff for target DB if needed
         dao.init();
 
+        // Test database connection
+        dao.validateConnection();
+
         // Create the database/schema structure if doesn't exist
         dao.createDatabaseIfNotExist(keyType);
 

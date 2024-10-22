@@ -378,11 +378,18 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
     }
 
     @Override
-    public void validateConnection() throws NDatabaseLoadException {
+    public void validateConnection() throws DatabaseConnectionException {
+        Connection connection = null;
+        PreparedStatement ps = null;
         try {
-            pool.connect();
+            connection = pool.getConnection();
+            ps = connection.prepareStatement("SELECT 1");
+            ps.execute();
         } catch (Exception e) {
-            throw new NDatabaseLoadException("Failed to connect to the database", e);
+            throw new DatabaseConnectionException("Failed to connect to the database", e);
+        }
+        finally {
+            close(connection, ps);
         }
     }
 
