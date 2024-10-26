@@ -3,7 +3,7 @@ package com.nivixx.ndatabase.core.reflection;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nivixx.ndatabase.api.annotation.Indexed;
 import com.nivixx.ndatabase.core.Injector;
-import com.nivixx.ndatabase.core.expressiontree.SingleNodePath;
+import com.nivixx.ndatabase.expressiontree.SingleNodePath;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
 import java.lang.reflect.Field;

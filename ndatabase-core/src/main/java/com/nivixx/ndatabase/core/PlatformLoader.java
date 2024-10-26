@@ -7,12 +7,12 @@ import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.api.NDatabaseAPI;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
-import com.nivixx.ndatabase.core.dao.DatabaseConnection;
-import com.nivixx.ndatabase.core.dao.mariadb.HikariMariaConnectionPool;
-import com.nivixx.ndatabase.core.dao.mongodb.MongodbConnection;
-import com.nivixx.ndatabase.core.dao.mysql.HikariConnectionPool;
-import com.nivixx.ndatabase.core.dao.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.core.promise.AsyncThreadPool;
+import com.nivixx.ndatabase.dbms.api.DatabaseConnection;
+import com.nivixx.ndatabase.dbms.mariadb.HikariMariaConnectionPool;
+import com.nivixx.ndatabase.dbms.mongodb.MongodbConnection;
+import com.nivixx.ndatabase.dbms.mysql.HikariConnectionPool;
+import com.nivixx.ndatabase.dbms.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 
