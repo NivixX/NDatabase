@@ -5,9 +5,8 @@ import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.api.exception.NDatabaseLoadException;
 import com.nivixx.ndatabase.api.repository.Repository;
 import com.nivixx.ndatabase.core.config.DatabaseType;
-import com.nivixx.ndatabase.core.config.MariaDBConfig;
-import com.nivixx.ndatabase.core.config.MysqlConfig;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
+import com.nivixx.ndatabase.dbms.mariadb.MariaDBConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
@@ -20,7 +19,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.sql.SQLException;

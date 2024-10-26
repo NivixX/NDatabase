@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ndatabase</artifactId>
         <groupId>com.nivixx</groupId>
-        <version>1.3.2-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,17 +20,52 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-api</artifactId>
-            <version>1.3.2-SNAPSHOT</version>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-expressiontree</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-api</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-core</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-jdbc</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-mysql</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-sqlite</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-mongodb</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nivixx</groupId>
+            <artifactId>ndatabase-dbms-mariadb</artifactId>
+            <version>1.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>core-platform</artifactId>
-            <version>1.3.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.12</version>
+            <version>1.4.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

@@ -2,6 +2,10 @@ package com.nivixx.ndatabase.platforms.bukkitplatform;
 
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.core.config.*;
+import com.nivixx.ndatabase.dbms.mariadb.MariaDBConfig;
+import com.nivixx.ndatabase.dbms.mongodb.MongoDBConfig;
+import com.nivixx.ndatabase.dbms.mysql.MysqlConfig;
+import com.nivixx.ndatabase.dbms.sqlite.SqliteConfig;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
 import org.bukkit.configuration.ConfigurationSection;
