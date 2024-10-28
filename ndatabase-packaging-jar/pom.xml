@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase</artifactId>
-        <version>1.4.0-SNAPSHOT</version>
+        <version>1.4.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>ndatabase-packaging-jar</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
 
 
     <build>
@@ -51,17 +51,17 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-core</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>1.4.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>app-platform</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>1.4.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>bukkit-platform</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>1.4.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

@@ -1,9 +1,12 @@
 package com.nivixx.ndatabase.platforms.bukkitplatform;
 
+import com.nivixx.ndatabase.api.NDatabase;
 import com.nivixx.ndatabase.core.PlatformLoader;
 import com.nivixx.ndatabase.core.config.NDatabaseConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Objects;
 
 public class NDatabasePlugin extends JavaPlugin {
 
@@ -34,6 +37,8 @@ public class NDatabasePlugin extends JavaPlugin {
         );
         try {
             plaformLoader.load();
+            Objects.requireNonNull(NDatabase.api(), "NDatabase instance is null after platform load.");
+            Bukkit.getLogger().info("NDatabase platform (bukkit) has been loaded with success and the api is usable.");
         } catch (Throwable e) {
             throw new IllegalStateException("Could not init NDatabase bukkit plugin.", e);
         }
