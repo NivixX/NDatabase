@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase</artifactId>
-        <version>1.4.1-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>ndatabase-dbms-mongodb</artifactId>
@@ -20,13 +20,13 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-dbms-api</artifactId>
-            <version>1.4.1-SNAPSHOT</version>
+            <version>1.4.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-dbms-core</artifactId>
-            <version>1.4.1-SNAPSHOT</version>
+            <version>1.4.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
