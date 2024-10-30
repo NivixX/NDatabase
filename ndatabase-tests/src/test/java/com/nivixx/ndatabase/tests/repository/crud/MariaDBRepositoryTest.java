@@ -14,6 +14,7 @@ import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
+import net.byteflux.libby.LibraryManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -70,6 +71,11 @@ public class MariaDBRepositoryTest extends AbstractRepositoryTest {
                 bukkitNDatabaseConfig.setDatabaseType(DatabaseType.MARIADB);
                 bukkitNDatabaseConfig.setMariaDBConfig(mariaDBConfig);
                 return bukkitNDatabaseConfig;
+            }
+
+            @Override
+            public LibraryManager supplyLibraryManager() {
+                return null;
             }
         };
         appPlatformLoader.load();

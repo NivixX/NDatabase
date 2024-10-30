@@ -10,10 +10,12 @@ import com.nivixx.ndatabase.dbms.sqlite.SqliteConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
+import com.nivixx.ndatabase.tests.TestLibraryManager;
 import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
+import net.byteflux.libby.LibraryManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +24,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class SqliteRepositoryTest extends AbstractRepositoryTest {
     public SqliteRepositoryTest() {
@@ -46,6 +49,13 @@ public class SqliteRepositoryTest extends AbstractRepositoryTest {
                 bukkitNDatabaseConfig.setDatabaseType(DatabaseType.SQLITE);
                 bukkitNDatabaseConfig.setSqliteConfig(sqliteConfig);
                 return bukkitNDatabaseConfig;
+            }
+
+            @Override
+            public LibraryManager supplyLibraryManager() {
+                File testDepenciesFolder = new File("src/test/resources/testDependencies");
+                testDepenciesFolder.deleteOnExit();
+                return new TestLibraryManager<>(Logger.getGlobal(), testDepenciesFolder.toPath(), this);
             }
         };
         File dbFile = new File("src/test/resources/testsqlite.sqlite");

@@ -14,6 +14,7 @@ import com.nivixx.ndatabase.dbms.mongodb.MongoDBConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
+import com.nivixx.ndatabase.tests.TestLibraryManager;
 import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
@@ -26,6 +27,7 @@ import de.flapdoodle.embed.mongo.types.DistributionBaseUrl;
 import de.flapdoodle.reverse.Transition;
 import de.flapdoodle.reverse.TransitionWalker;
 import de.flapdoodle.reverse.transitions.Start;
+import net.byteflux.libby.LibraryManager;
 import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -36,6 +38,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class MongoDBRepositoryTest extends AbstractRepositoryTest {
 
@@ -65,6 +68,13 @@ public class MongoDBRepositoryTest extends AbstractRepositoryTest {
                 bukkitNDatabaseConfig.setDatabaseType(DatabaseType.MONGODB);
                 bukkitNDatabaseConfig.setMongoDBConfig(mongoDBConfig);
                 return bukkitNDatabaseConfig;
+            }
+
+            @Override
+            public LibraryManager supplyLibraryManager() {
+                File testDepenciesFolder = new File("src/test/resources/testDependencies");
+                testDepenciesFolder.deleteOnExit();
+                return new TestLibraryManager<>(Logger.getGlobal(), testDepenciesFolder.toPath(), this);
             }
         };
         appPlatformLoader.load();

@@ -3,29 +3,49 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase-platforms</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>sponge-platform</artifactId>
-    <version>1.16-SNAPSHOT</version>
 
+    <properties>
+        <spongeapi.version>8.0.0</spongeapi.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>papermc-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>spongeapi</artifactId>
-            <version>8.0.0</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-core</artifactId>
-            <version>1.16-SNAPSHOT</version>
+            <version>1.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>spongeapi</artifactId>
+            <version>${spongeapi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.byteflux</groupId>
+            <artifactId>libby-sponge</artifactId>
+            <version>1.3.1</version>
         </dependency>
     </dependencies>
 </project>

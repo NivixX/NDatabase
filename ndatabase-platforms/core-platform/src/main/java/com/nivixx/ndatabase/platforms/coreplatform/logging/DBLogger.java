@@ -48,6 +48,9 @@ public abstract class DBLogger {
     public void logWarn(String message) {
         consumeWarnMessage().accept(() -> message);
     }
+    public void logInfo(String message) {
+        consumeInfoMessage().accept(() -> message);
+    }
     public void logDebug(String message) {
         consumeDebugMessage().accept(() -> message);
     }

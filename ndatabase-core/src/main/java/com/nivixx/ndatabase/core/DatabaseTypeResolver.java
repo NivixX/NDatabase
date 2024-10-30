@@ -14,6 +14,7 @@ import com.nivixx.ndatabase.dbms.mysql.MysqlDao;
 import com.nivixx.ndatabase.dbms.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.dbms.sqlite.SqliteDao;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
+import net.byteflux.libby.LibraryManager;
 
 import java.lang.annotation.Annotation;
 
@@ -24,6 +25,7 @@ public class DatabaseTypeResolver {
         DBLogger dbLogger = Injector.resolveInstance(DBLogger.class);
         NDatabaseConfig nDatabaseConfig = Injector.resolveInstance(NDatabaseConfig.class);
         NTable nTable = extractNTable(nEntity);
+
 
         switch (nDatabaseConfig.getDatabaseType()) {
             case MYSQL:

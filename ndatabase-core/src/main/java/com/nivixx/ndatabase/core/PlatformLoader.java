@@ -15,6 +15,7 @@ import com.nivixx.ndatabase.dbms.mysql.HikariConnectionPool;
 import com.nivixx.ndatabase.dbms.sqlite.SqliteConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
+import net.byteflux.libby.LibraryManager;
 
 import java.lang.reflect.Method;
 
@@ -22,6 +23,9 @@ public abstract class PlatformLoader extends AbstractModule {
 
     @Override
     protected void configure() {
+        LibraryManager libraryManager = supplyLibraryManager();
+        libraryManager.addMavenCentral();
+
         bind(SyncExecutor.class).toInstance(supplySyncExecutor());
 
         NDatabaseConfig nDatabaseConfig = supplyNDatabaseConfig();
@@ -30,7 +34,8 @@ public abstract class PlatformLoader extends AbstractModule {
         bind(DBLogger.class).toInstance(dbLogger);
         switch (nDatabaseConfig.getDatabaseType()) {
             case MYSQL:
-                HikariConnectionPool hikariConnectionPool = new HikariConnectionPool(nDatabaseConfig.getMysqlConfig());
+                HikariConnectionPool hikariConnectionPool =
+                        new HikariConnectionPool(nDatabaseConfig.getMysqlConfig(), dbLogger, libraryManager);
                 bind(HikariConnectionPool.class).toInstance(hikariConnectionPool);
                 bind(DatabaseConnection.class).toInstance(hikariConnectionPool);
                 break;
@@ -40,12 +45,12 @@ public abstract class PlatformLoader extends AbstractModule {
                 bind(DatabaseConnection.class).toInstance(hikariConnectionPoolMaria);
                 break;
             case SQLITE:
-                SqliteConnectionPool sqliteConnectionPool = new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger);
+                SqliteConnectionPool sqliteConnectionPool = new SqliteConnectionPool(nDatabaseConfig.getSqliteConfig(), dbLogger, libraryManager);
                 bind(SqliteConnectionPool.class).toInstance(sqliteConnectionPool);
                 bind(DatabaseConnection.class).toInstance(sqliteConnectionPool);
                 break;
             case MONGODB:
-                MongodbConnection mongodbConnection = new MongodbConnection(nDatabaseConfig.getMongoDBConfig());
+                MongodbConnection mongodbConnection = new MongodbConnection(nDatabaseConfig.getMongoDBConfig(), dbLogger, libraryManager);
                 bind(MongodbConnection.class).toInstance(mongodbConnection);
                 bind(DatabaseConnection.class).toInstance(mongodbConnection);
                 break;
@@ -87,4 +92,5 @@ public abstract class PlatformLoader extends AbstractModule {
     public abstract DBLogger supplyDbLogger(boolean isDebugMode);
     public abstract SyncExecutor supplySyncExecutor();
     public abstract NDatabaseConfig supplyNDatabaseConfig();
+    public abstract LibraryManager supplyLibraryManager();
 }

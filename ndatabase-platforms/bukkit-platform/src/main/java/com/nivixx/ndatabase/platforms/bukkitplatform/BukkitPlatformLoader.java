@@ -8,6 +8,8 @@ import com.nivixx.ndatabase.dbms.mysql.MysqlConfig;
 import com.nivixx.ndatabase.dbms.sqlite.SqliteConfig;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
+import net.byteflux.libby.BukkitLibraryManager;
+import net.byteflux.libby.LibraryManager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -83,5 +85,10 @@ public class BukkitPlatformLoader extends PlatformLoader {
         bukkitNDatabaseConfig.setMongoDBConfig(mongoDBConfig);
 
         return bukkitNDatabaseConfig;
+    }
+
+    @Override
+    public LibraryManager supplyLibraryManager() {
+        return new BukkitLibraryManager(NDatabasePlugin.getInstance(), "ndatabase-dependencies");
     }
 }

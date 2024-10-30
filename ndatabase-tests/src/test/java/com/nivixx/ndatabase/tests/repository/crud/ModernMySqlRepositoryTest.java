@@ -10,28 +10,37 @@ import com.nivixx.ndatabase.dbms.mysql.MysqlConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppNDatabaseConfig;
 import com.nivixx.ndatabase.platforms.appplatform.AppPlatformLoader;
 import com.nivixx.ndatabase.platforms.coreplatform.executor.SyncExecutor;
+import com.nivixx.ndatabase.tests.TestLibraryManager;
 import com.nivixx.ndatabase.tests.repository.entity.EmbeddedBukkitLocation;
 import com.nivixx.ndatabase.tests.repository.entity.InvalidKeyTypeEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntity;
 import com.nivixx.ndatabase.tests.repository.entity.PlayerEntityNoIndex;
+import net.byteflux.libby.LibraryManager;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class ModernMySqlRepositoryTest extends AbstractRepositoryTest {
 
 
-    private static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>(DockerImageName.parse("mysql:8.3.0"))
-            .withUsername("test")
-            .withPassword("test")
-            .withDatabaseName("test");
+    private static final GenericContainer<?> mysqlContainer = new GenericContainer<>(DockerImageName.parse("mysql:8.3.0"))
+            .withEnv("MYSQL_USER", "test")
+            .withEnv("MYSQL_PASSWORD", "test")
+            .withEnv("MYSQL_DATABASE", "test")
+            .withEnv("MYSQL_ROOT_PASSWORD", "test")
+            .withExposedPorts(3306)
+            .waitingFor(Wait.forListeningPort());
 
 
     public ModernMySqlRepositoryTest() {
@@ -49,7 +58,12 @@ public class ModernMySqlRepositoryTest extends AbstractRepositoryTest {
 
     @Before
     public void initApp() throws NDatabaseLoadException, SQLException {
-        String jdbcURL = mysqlContainer.getJdbcUrl();
+
+        String jdbcURL = String.format(
+                "jdbc:mysql://%s:%d/test",
+                mysqlContainer.getHost(),
+                mysqlContainer.getMappedPort(3306)
+        );
         ExecutorService mainThread = Executors.newFixedThreadPool(1);
 
         appPlatformLoader = new AppPlatformLoader() {
@@ -70,6 +84,13 @@ public class ModernMySqlRepositoryTest extends AbstractRepositoryTest {
                 bukkitNDatabaseConfig.setDatabaseType(DatabaseType.MYSQL);
                 bukkitNDatabaseConfig.setMysqlConfig(mysqlConfig);
                 return bukkitNDatabaseConfig;
+            }
+
+            @Override
+            public LibraryManager supplyLibraryManager() {
+                File testDepenciesFolder = new File("src/test/resources/testDependencies");
+                testDepenciesFolder.deleteOnExit();
+                return new TestLibraryManager<>(Logger.getGlobal(), testDepenciesFolder.toPath(), this);
             }
         };
         appPlatformLoader.load();
