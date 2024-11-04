@@ -5,7 +5,7 @@
   },
   "license": "MIT",
   "global": {
-    "version": "1.5.0",
+    "version": "1.5.1",
     "links": {
       "homepage": "https://github.com/NivixX/NDatabase",
       "source": "https://github.com/NivixX/NDatabase",

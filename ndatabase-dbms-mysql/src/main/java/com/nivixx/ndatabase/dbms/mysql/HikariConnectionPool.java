@@ -61,7 +61,7 @@ public class HikariConnectionPool implements JdbcConnectionPool {
         Library lib = Library.builder()
                 .groupId("mysql") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
                 .artifactId("mysql-connector-java")
-                .version("8.0.28")
+                .version("8.0.30")
                 .isolatedLoad(true)
                 .id("mysql-connector-java")
                 .build();
