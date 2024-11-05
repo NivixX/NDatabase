@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase-platforms</artifactId>
-        <version>1.5.1-SNAPSHOT</version>
+        <version>1.5.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>sponge-platform</artifactId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-core</artifactId>
-            <version>1.5.1-SNAPSHOT</version>
+            <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.spongepowered</groupId>

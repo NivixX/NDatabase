@@ -69,7 +69,7 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
         Library lib = Library.builder()
                 .groupId("org{}xerial") // "{}" is replaced with ".", useful to avoid unwanted changes made by maven-shade-plugin
                 .artifactId("sqlite-jdbc")
-                .version("3.46.1.3")
+                .version("3.47.0.0")
                 .isolatedLoad(true)
                 .id("sqlite-jdbc")
                 .build();
