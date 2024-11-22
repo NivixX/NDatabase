@@ -90,6 +90,18 @@ public abstract class AbstractRepositoryTest {
         Assert.assertEquals(entityFromDb.getPlayerScore(), 20);
     }
 
+    @Test
+    public void updateExistingValueWithoutIndexedField() {
+        UUID uuid = UUID.randomUUID();
+        PlayerEntityNoIndex playerEntity = new PlayerEntityNoIndex(uuid);
+        playerEntity.setPlayerScore(10);
+        repositoryNoIndex.insert(playerEntity);
+        playerEntity.setPlayerScore(20);
+        repositoryNoIndex.update(playerEntity);
+        PlayerEntityNoIndex entityFromDb = repositoryNoIndex.get(uuid);
+        Assert.assertEquals(entityFromDb.getPlayerScore(), 20);
+    }
+
     @Test(expected = NDatabaseException.class)
     public void updateNonExistingEntityException() {
         UUID uuid = UUID.randomUUID();

@@ -140,19 +140,22 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
                 .map(Map.Entry::getKey).collect(Collectors.toList());
         List<JsonNode> values = indexedColumnNamesValues.stream()
                 .map(Map.Entry::getValue).collect(Collectors.toList());
-        String valueNames = DATA_IDENTIFIER + " = ?, ";
+        StringBuilder valueNames = new StringBuilder(DATA_IDENTIFIER + " = ?, ");
         for (String columnName : columnNameList) {
-            valueNames += columnName + " = ?,";
+            valueNames.append(columnName).append(" = ?, ");
         }
-        if(valueNames.charAt(valueNames.length()-1) == ',') {
-            valueNames = valueNames.substring(0, valueNames.length()-1);
+
+        // if there is no denormalized filter (represented as ',' in the query)
+        // only do a simple get WHERE query by key
+        if(valueNames.charAt(valueNames.length()-2) == ',') {
+            valueNames = new StringBuilder(valueNames.substring(0, valueNames.length() - 2));
         }
 
         try {
             connection = pool.getConnection();
             String updateQuery = MessageFormat.format(
                     "UPDATE {0} SET {1} WHERE {2} = ?",
-                    collectionName, valueNames, DATA_KEY_IDENTIFIER);
+                    collectionName, valueNames.toString(), DATA_KEY_IDENTIFIER);
             ps = connection.prepareStatement(updateQuery);
 
             ps.setObject(1, byteObjectSerializer.encode(value));

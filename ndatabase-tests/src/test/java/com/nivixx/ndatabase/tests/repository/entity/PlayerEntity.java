@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-@NTable(name = "my_table_name")
+@NTable(name = "My_table_name")
 public class PlayerEntity extends NEntity<UUID> {
 
     @Indexed
