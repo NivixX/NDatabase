@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase</artifactId>
-        <version>1.5.3-SNAPSHOT</version>
+        <version>1.5.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>ndatabase-dbms-sqlite</artifactId>
@@ -22,13 +22,13 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-dbms-api</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>ndatabase-dbms-jdbc</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.4-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

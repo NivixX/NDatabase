@@ -91,6 +91,26 @@ public abstract class AbstractRepositoryTest {
     }
 
     @Test
+    public void updateExistingValueWithConcurrentMultiThreads() {
+
+        for (int i=0; i<50; i++) {
+            UUID uuid = UUID.randomUUID();
+            PlayerEntity playerEntity = new PlayerEntity(uuid);
+            playerEntity.setPlayerScore(10);
+            repository.insert(playerEntity);
+
+            repository.getAsync(uuid).thenAsync((playerEntity1, throwable) -> {
+                if(throwable != null) {
+                    throwable.printStackTrace();
+                }
+                playerEntity1.setPlayerScore(20);
+                repository.update(playerEntity1);
+                PlayerEntity entityFromDb = repository.get(uuid);
+                Assert.assertEquals(entityFromDb.getPlayerScore(), 20);
+            });
+        }
+    }
+    @Test
     public void updateExistingValueWithoutIndexedField() {
         UUID uuid = UUID.randomUUID();
         PlayerEntityNoIndex playerEntity = new PlayerEntityNoIndex(uuid);

@@ -3,28 +3,24 @@ package com.nivixx.ndatabase.dbms.sqlite;
 import com.nivixx.ndatabase.api.exception.NDatabaseException;
 import com.nivixx.ndatabase.dbms.jdbc.JdbcConnectionPool;
 import com.nivixx.ndatabase.platforms.coreplatform.logging.DBLogger;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import net.byteflux.libby.Library;
 import net.byteflux.libby.LibraryManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class SqliteConnectionPool implements JdbcConnectionPool {
 
-    private SqliteConfig sqliteConfig;
-    private DBLogger dbLogger;
+    private final SqliteConfig sqliteConfig;
+    private final DBLogger dbLogger;
+    private final LibraryManager libraryManager;
 
-    private Connection connection;
-
-    private LibraryManager libraryManager;
-
-    private Constructor<?> connectionConstructor;
+    private HikariDataSource dataSource;
+    private ClassLoader driverClassLoader;
 
     public SqliteConnectionPool(SqliteConfig sqliteConfig, DBLogger dbLogger, LibraryManager libraryManager) {
         this.sqliteConfig = sqliteConfig;
@@ -35,34 +31,47 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
     @Override
     public void connect() throws Exception {
         installSqliteDriver();
-        requireSqliteDriver();
-        getConnection();
+
+        // Set up the SQLite database file
+        File dataFile = new File(sqliteConfig.getFileFullPath());
+        if (!dataFile.exists()) {
+            if (!dataFile.createNewFile()) {
+                throw new IOException("Failed to create SQLite database file: " + sqliteConfig.getFileFullPath());
+            }
+        }
+
+        // Switch current class loader with the isolated class loader that loads the SQLite driver at runtime
+        Thread thread = Thread.currentThread();
+        ClassLoader previousClassLoader = thread.getContextClassLoader();
+        thread.setContextClassLoader(driverClassLoader);
+
+        try {
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:sqlite:" + sqliteConfig.getFileFullPath());
+            config.setDriverClassName("org.sqlite.JDBC"); // Use the appropriate SQLite driver
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setIdleTimeout(30000);
+            config.setConnectionTimeout(30000);
+            config.setMaxLifetime(1800000);
+            config.addDataSourceProperty("journal_mode", "WAL"); // Enable Write-Ahead Logging
+
+            dataSource = new HikariDataSource(config);
+            dbLogger.logInfo("SQLite HikariCP DataSource initialized successfully.");
+        } catch (Exception e) {
+            throw new NDatabaseException("Failed to initialize SQLite DataSource", e);
+        } finally {
+            // Restore the previous class loader
+            thread.setContextClassLoader(previousClassLoader);
+        }
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        if(connection != null && !connection.isClosed()){
-            return connection;
+        if (dataSource == null || dataSource.isClosed()) {
+            throw new NDatabaseException("DataSource is not initialized or closed.");
         }
-
-        File dataFolder = new File(sqliteConfig.getFileFullPath());
-        if (!dataFolder.exists()) {
-            try {
-                dataFolder.createNewFile();
-            } catch (IOException e) {
-                String msg = String.format("Failed to read/create sqlite file '%s'", sqliteConfig.getFileFullPath());
-                throw new NDatabaseException(msg, e);
-            }
-        }
-
-        try {
-            Properties properties = new Properties();
-            connection = (Connection) connectionConstructor.newInstance("jdbc:sqlite:" + sqliteConfig.getFileFullPath(), sqliteConfig.getFileFullPath(), properties);
-        } catch (Exception e) {
-            throw new NDatabaseException("Failed to get SQLITE connection", e);
-        }
-
-        return connection;
+        return dataSource.getConnection();
     }
 
     private void installSqliteDriver() {
@@ -75,18 +84,14 @@ public class SqliteConnectionPool implements JdbcConnectionPool {
                 .build();
         dbLogger.logInfo("Loading SQLite driver");
         libraryManager.loadLibrary(lib);
-        dbLogger.logInfo("SQLite driver has been loaded with success");
+        driverClassLoader = libraryManager.getIsolatedClassLoaderOf("sqlite-jdbc");
+        dbLogger.logInfo("SQLite driver has been loaded successfully.");
     }
 
-    private void requireSqliteDriver() {
-        try {
-            Class<?> connectionClass = libraryManager.getIsolatedClassLoaderOf("sqlite-jdbc")
-                    .loadClass("org.sqlite.jdbc4.JDBC4Connection");
-            connectionConstructor = connectionClass.getConstructor(String.class, String.class, Properties.class);
-        } catch (Exception e) {
-            String msg = "Failed to find sqlite driver, verify the sqlite driver is present in your java execution environment";
-            throw new NDatabaseException(msg, e);
+    public void closePool() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            dbLogger.logInfo("SQLite HikariCP DataSource closed.");
         }
     }
-
 }

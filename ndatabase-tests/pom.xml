@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.nivixx</groupId>
         <artifactId>ndatabase</artifactId>
-        <version>1.5.3-SNAPSHOT</version>
+        <version>1.5.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>ndatabase-tests</artifactId>
-    <version>1.5.3-SNAPSHOT</version>
+    <version>1.5.4-SNAPSHOT</version>
 
     <repositories>
         <repository>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.nivixx</groupId>
             <artifactId>app-platform</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>

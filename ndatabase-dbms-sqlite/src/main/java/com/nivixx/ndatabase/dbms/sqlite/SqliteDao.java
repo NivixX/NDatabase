@@ -38,6 +38,8 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
         super(collectionName, schema, keyType, nEntityType, instantiatedNEntity, sqliteConnectionPool,  dbLogger);
     }
 
+
+
     // Sqlite handle upsert differently
     @Override
     public void upsert(V value) throws NDatabaseException {
@@ -168,7 +170,7 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NDatabaseException(e);
         } finally {
             close(connection, ps);
@@ -211,7 +213,7 @@ public class SqliteDao<K, V extends NEntity<K>> extends JdbcDao<K,V> {
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NDatabaseException(e);
         } finally {
             close(connection, ps);

@@ -131,7 +131,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NDatabaseException(e);
         } finally {
             close(connection, ps);
@@ -156,7 +156,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             if(ps.executeUpdate() <= 0) {
                 throw new NEntityNotFoundException("There is no value with the key " + key + " in the database for collection " + collectionName);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NDatabaseException(e);
         } finally {
             close(connection, ps);
@@ -172,7 +172,7 @@ public abstract class JdbcDao<K, V extends NEntity<K>> extends Dao<K, V> {
             connection = pool.getConnection();
             ps = connection.prepareStatement("DELETE FROM " + collectionName);
             ps.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new NDatabaseException(e);
         } finally {
             close(connection, ps);
